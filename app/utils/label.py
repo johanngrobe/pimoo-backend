@@ -21,8 +21,8 @@ CLIMATE_IMPACT_DURATION_LABELS = {
 
 MOBILITY_SPATIAL_IMPACT_LABELS = {
     'locally': 'lokal',
-    'districtwide': 'Quartier/Stadtteil',
-    'citywide': 'Stadt'
+    'districtwide': 'quartiersweit',
+    'citywide': 'stadtweit'
 }
 
 MOBILITY_IMPACT_TICKMARK_LABELS = {

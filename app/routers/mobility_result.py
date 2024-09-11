@@ -48,7 +48,7 @@ def create_mobility_result(mobility_result: schemas.MobilityResultCreate, db: Se
 
 
 @router.put("/{id}", response_model=schemas.MobilityResultOut)
-def update_mobility_result(id: int, updates: schemas.MobilityResultOut, db: Session = Depends(get_db)):
+def update_mobility_result(id: int, updates: schemas.MobilityResultCreate, db: Session = Depends(get_db)):
 
     result_query = db.query(models.MobilityResult).filter(models.MobilityResult.id == id)
 
@@ -129,20 +129,32 @@ def create_mobility_subresult(mobility_result: schemas.MobilitySubResultCreate, 
 
 @router.put("/sub/{id}", response_model=schemas.MobilitySubResultOut)
 def update_mobility_subresult(id: int, updates: schemas.MobilitySubResultCreate, db: Session = Depends(get_db)):
+    # Find the existing MobilitySubResult by ID
+    existing_result = db.query(models.MobilitySubResult).filter(models.MobilitySubResult.id == id).first()
 
-    result_query = db.query(models.MobilitySubResult).filter(models.MobilitySubResult.id == id)
+    if not existing_result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MobilitySubResult not found")
 
-    result = result_query.first()
+    # Update the fields of the existing MobilitySubResult
+    existing_result.mobility_result_id = updates.mobility_result_id
+    existing_result.sub_objective_id = updates.sub_objective_id
+    existing_result.target = updates.target
+    existing_result.impact = updates.impact
+    existing_result.spatial_impact = updates.spatial_impact
+    existing_result.annotation = updates.annotation
+    
+    # Clear existing associations with indicators
+    existing_result.indicators.clear()
 
-    if result == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"result with id: {id} does not exist")
-
-    result_query.update(updates.model_dump(), synchronize_session=False)
-
+    # Add new indicators
+    if updates.indicator_ids:
+        indicators = db.query(models.Indicator).filter(models.Indicator.id.in_(updates.indicator_ids)).all()
+        existing_result.indicators = indicators
+    
     db.commit()
+    db.refresh(existing_result)
 
-    return result_query.first()
+    return existing_result
 
 @router.delete("/sub/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_mobility_subresult(id: int, db: Session = Depends(get_db)):

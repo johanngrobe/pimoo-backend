@@ -2,11 +2,11 @@ from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from sqlalchemy import func
+from sqlalchemy import func, desc
 import io
 from .. import models, schemas
 from ..database import get_db
-from ..src.export.custom_FPDF import FPDF
+from ..utils.export.custom_FPDF import FPDF
 
 router = APIRouter(
     prefix="/submission",
@@ -17,7 +17,7 @@ router = APIRouter(
 @router.get("/mobility", response_model=List[schemas.MobilitySubmissionOut])
 def get_mobility_submissions(db: Session = Depends(get_db)):
 
-    submissions = db.query(models.MobilitySubmission).all()
+    submissions = db.query(models.MobilitySubmission).order_by(desc(models.MobilitySubmission.created_at)).all()
 
     if not submissions:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -28,7 +28,7 @@ def get_mobility_submissions(db: Session = Depends(get_db)):
 @router.get("/climate", response_model=List[schemas.ClimateSubmissionOut])
 def get_climate_submissions(db: Session = Depends(get_db)):
 
-    submissions = db.query(models.ClimateSubmission).all()
+    submissions = db.query(models.ClimateSubmission).order_by(desc(models.ClimateSubmission.created_at)).all()
 
     if not submissions:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -99,7 +99,7 @@ def create_indicator(submission: schemas.MobilitySubmissionCreate, db: Session =
 
     return new_submission
 
-@router.post("/climate", status_code=status.HTTP_201_CREATED)
+@router.post("/climate", status_code=status.HTTP_201_CREATED, response_model=schemas.ClimateSubmissionOut)
 def create_indicator(submission: schemas.ClimateSubmissionCreate, db: Session = Depends(get_db)):
 
     new_submission = models.ClimateSubmission(**submission.model_dump())

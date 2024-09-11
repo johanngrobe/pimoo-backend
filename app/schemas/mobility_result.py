@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator, field_serializer
 from typing import List, Optional
 from .indicator import IndicatorOut
 from .objective import MainObjectiveOutForResult, SubObjectiveOut
@@ -18,6 +18,13 @@ class MobilityResultOut(MobilityResultBase):
     main_objective: MainObjectiveOutForResult
     sub_objectives: List["MobilitySubResultOut"]
 
+    # Apply a field serializer to sort sub_objectives by sub_objective.no
+    @field_serializer('sub_objectives')
+    def sort_sub_objectives(self, sub_objectives: List["MobilitySubResultOut"]) -> List["MobilitySubResultOut"]:
+        # Ensure sorting of the list by sub_objective.no
+        return sorted(sub_objectives, key=lambda x: x.sub_objective.no)
+
+
 class MobilitySubResultBase(BaseModel):
     mobility_result_id: int
     sub_objective_id: int
@@ -36,3 +43,8 @@ class MobilitySubResultOut(MobilitySubResultBase):
     id: int
     sub_objective: SubObjectiveOut
     indicators: Optional[List["IndicatorOut"]] = []
+
+    # Field serializer to return only the list of ids from indicators
+    @field_serializer('indicators')
+    def serialize_indicators(self, indicators):
+        return [indicator.id for indicator in indicators]
