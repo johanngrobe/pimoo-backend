@@ -3,7 +3,7 @@ import datetime
 import os
 import io
 from .pdf_utils import get_display_impact, calculcate_average_impact
-from ..label import label_mobility_spatial_impact
+from ..label import label_climate_impact, label_climate_impact_duration, label_climate_impact_ghg, label_mobility_impact, label_mobility_spatial_impact
 
 class FPDF(FPDF):
 
@@ -41,13 +41,31 @@ class FPDF(FPDF):
         self.cell(0,5, txt=f"{submission.administration_date.strftime('%d.%m.%Y')}" , new_x="LMARGIN",new_y="NEXT")
         self.cell(30,5, txt="**Maßnahme:**", markdown=True)
         self.multi_cell(0,5, txt=F"{submission.label}",new_x="LMARGIN", new_y="NEXT")
-        self.cell(30,5, txt="**Beschreibung:**", markdown=True)
-        self.cell(0,5, txt=f"{submission.author}", new_x="LMARGIN",new_y="NEXT")
 
         self.cell(0,3, new_x="LMARGIN", new_y="NEXT")
         
-        self.cell(30,5, txt="**Einschätzung der Klimarelevanz**", markdown=True)
-        self.cell(0,5, txt=f"{submission.impact}", new_x="LMARGIN",new_y="NEXT")
+        self.cell(60,5, txt="**Einschätzung der Klimarelevanz:**", markdown=True)
+        impact = label_climate_impact(submission.impact)
+        self.cell(0,5, txt=f"{impact}", new_x="LMARGIN",new_y="NEXT")
+
+        if submission.impact != "no_effect":
+            self.cell(60,5, txt="**Auswirkung auf Treibhausgase:**", markdown=True)
+            impact_ghg = label_climate_impact_ghg(submission.impact_ghg)
+            self.cell(0,5, txt=f"{impact_ghg}", new_x="LMARGIN",new_y="NEXT")
+
+            self.cell(60,5, txt="**Anpassung an den Klimawandel:**", markdown=True)
+            impact_adaption = label_climate_impact(submission.impact_adaption)
+            self.cell(0,5, txt=f"{impact_adaption}", new_x="LMARGIN",new_y="NEXT")
+
+            self.cell(60,5, txt="**Beschreibung:**", markdown=True)
+            self.multi_cell(0,5, txt=f"{submission.impact_desc}",new_x="LMARGIN", new_y="NEXT")
+
+            self.cell(60,5, txt="**Dauer der Auswirkung:**", markdown=True)
+            impact_duration = label_climate_impact_duration(submission.impact_duration)
+            self.cell(0,5, txt=f"{impact_duration}", new_x="LMARGIN",new_y="NEXT")
+
+            self.cell(60,5, txt="**Alternativmaßnahme:**", markdown=True)
+            self.multi_cell(0,5, txt=f"{submission.alternative_desc}",new_x="LMARGIN", new_y="NEXT")
 
         # Create a bytes buffer to save the self
         pdf_output = io.BytesIO()

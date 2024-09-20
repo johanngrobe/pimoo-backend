@@ -7,6 +7,7 @@ class MobilityResultBase(BaseModel):
     submission_id: int
     main_objective_id: int
     target: bool
+    # municipality_id: int
 
 class MobilityResultCreate(MobilityResultBase):
     pass
@@ -32,6 +33,7 @@ class MobilitySubResultBase(BaseModel):
     impact: Optional[int] = None
     spatial_impact: Optional[str] = None
     annotation: Optional[str] = None
+    # municipality_id: int
     
 
 class MobilitySubResultCreate(MobilitySubResultBase):

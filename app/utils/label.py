@@ -37,7 +37,6 @@ def label_climate_impact(value: str) -> str:
     """
     return CLIMATE_IMPACT_LABELS.get(value, value)  # Fallback to the original value if not found
 
-
 def label_climate_impact_ghg(value: str) -> str:
     """
     Translate the ClimateImpactEnum value into a readable German label.

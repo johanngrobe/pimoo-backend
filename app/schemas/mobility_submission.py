@@ -9,6 +9,7 @@ class MobilitySubmissionBase(BaseModel):
     desc: str
     administration_no: str
     administration_date: date
+    # municipality_id: int
 
 class MobilitySubmissionCreate(MobilitySubmissionBase):
     pass

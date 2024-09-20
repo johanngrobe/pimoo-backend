@@ -14,6 +14,7 @@ class ClimateSubmissionBase(BaseModel):
     impact_desc: Optional[str] = None
     impact_duration: Optional[str] = None
     alternative_desc: Optional[str] = None
+    # municipality_id: int
 
 class ClimateSubmissionCreate(ClimateSubmissionBase):
     pass

@@ -36,11 +36,22 @@ def get_indicator(id: int, db: Session = Depends(get_db)):
     return indicator
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.IndicatorOut)
 def create_indicator(indicator: schemas.IndicatorCreate, db: Session = Depends(get_db)):
 
-    new_indicator = models.Indicator(**indicator.model_dump())
+    new_indicator = models.TextBlock(
+        label=indicator.label
+    )
+    
     db.add(new_indicator)
+    db.commit()
+    db.refresh(new_indicator)
+
+    # Add associations with indicators
+    if indicator.tag_ids:
+        tags = db.query(models.Tag).filter(models.Tag.id.in_(indicator.tag_ids)).all()
+        new_indicator.tags.extend(tags)
+    
     db.commit()
     db.refresh(new_indicator)
 
@@ -54,15 +65,20 @@ def update_indicator(id: int, updates: schemas.IndicatorCreate, db: Session = De
 
     indicator = indicator_query.first()
 
-    if indicator == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"indicator with id: {id} does not exist")
+    indicator.label = updates.label
+    
+    # Clear existing associations with indicators
+    indicator.tags.clear()
 
-    indicator_query.update(updates.model_dump(), synchronize_session=False)
-
+    # Add new indicators
+    if updates.tag_ids:
+        tags = db.query(models.Tag).filter(models.Tag.id.in_(updates.tag_ids)).all()
+        indicator.tags = tags
+    
     db.commit()
+    db.refresh(indicator)
 
-    return indicator_query.first()
+    return indicator
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_indicator(id: int, db: Session = Depends(get_db)):

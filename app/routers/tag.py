@@ -16,7 +16,7 @@ router = APIRouter(
 @router.get("/", response_model=List[schemas.TagOut])
 def get_tags(db: Session = Depends(get_db)):
 
-    tag = db.query(models.Tag).filter(models.Tag.id == id).all()
+    tag = db.query(models.Tag).all()
 
     if not tag:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -39,7 +39,7 @@ def get_tag(id: int, db: Session = Depends(get_db)):
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
 
-    new_tag = models.Indicator(**tag.model_dump())
+    new_tag = models.Tag(**tag.model_dump())
     db.add(new_tag)
     db.commit()
     db.refresh(new_tag)

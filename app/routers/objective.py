@@ -2,7 +2,7 @@ from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from sqlalchemy import func
+from sqlalchemy import func, asc
 # from sqlalchemy.sql.functions import func
 from .. import models, schemas, oauth2
 from ..database import get_db
@@ -24,10 +24,13 @@ def get_main_objectives(db: Session = Depends(get_db)):
 
     return objective
 
-@router.get("/sub", response_model=List[schemas.SubObjectiveOut])
+@router.get("/sub", response_model=List[schemas.SubObjectiveOutDetail])
 def get_sub_objectives(db: Session = Depends(get_db)):
 
-    objective = db.query(models.SubObjective).all()
+    objective = db.query(models.SubObjective).join(models.MainObjective).order_by(
+    asc(models.MainObjective.no), 
+    asc(models.SubObjective.no)
+).all()
 
     if not objective:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -68,7 +71,7 @@ def create_main_objective(main_objective: schemas.MainObjectiveCreate, db: Sessi
 
     return new_objective
 
-@router.post("/sub", status_code=status.HTTP_201_CREATED)
+@router.post("/sub", status_code=status.HTTP_201_CREATED, response_model=schemas.SubObjectiveOutDetail)
 def create_sub_objective(sub_objective: schemas.SubObjectiveCreate, db: Session = Depends(get_db)):
 
     new_objective = models.SubObjective(**sub_objective.model_dump())
@@ -96,7 +99,7 @@ def update_main_objective(id: int, updates: schemas.MainObjectiveCreate, db: Ses
 
     return objective_query.first()
 
-@router.put("/sub/{id}", response_model=schemas.SubObjectiveOut)
+@router.put("/sub/{id}", response_model=schemas.SubObjectiveOutDetail)
 def update_sub_objective(id: int, updates: schemas.SubObjectiveCreate, db: Session = Depends(get_db)):
 
     objective_query = db.query(models.SubObjective).filter(models.SubObjective.id == id)

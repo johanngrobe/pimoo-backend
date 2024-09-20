@@ -1,14 +1,16 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
+from .tag import TagOut
 
 class TextBlockBase(BaseModel):
     label: str
-    tags: Optional[List[int]]
+    
 
 class TextBlockCreate(TextBlockBase):
-    pass
+    tag_ids: Optional[List[int]] = []
 
 class TextBlockOut(TextBlockBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    tags: Optional[List[TagOut]] = []

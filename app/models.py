@@ -18,6 +18,9 @@ class MobilitySubmission(Base):
 
     objectives: Mapped[Optional[List["MobilityResult"]]] = relationship(back_populates="submission", cascade="all, delete-orphan", passive_deletes=True)
 
+    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    # municipality: Mapped["Municipality"] = relationship()
+
 
 # association table for many-to-many relationship between text_blocks and tags
 text_block_tag_association = Table(
@@ -64,6 +67,9 @@ class MainObjective(Base):
     label: Mapped[str]
     sub_objectives: Mapped[List["SubObjective"]] = relationship(back_populates="main_objective", cascade="all, delete")
 
+    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    # municipality: Mapped["Municipality"] = relationship()
+
 class SubObjective(Base):
     __tablename__ = "sub_objective"
 
@@ -72,6 +78,9 @@ class SubObjective(Base):
     label: Mapped[str]
     main_objective_id: Mapped[int] = mapped_column(ForeignKey("main_objective.id"), nullable=False)
     main_objective: Mapped["MainObjective"] = relationship(back_populates="sub_objectives",cascade="all, delete")
+
+    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    # municipality: Mapped["Municipality"] = relationship()
 
 
 # association table for many-to-many relationship between mobility_results and indicators
@@ -98,6 +107,9 @@ class MobilityResult(Base):
 
     sub_objectives: Mapped[Optional[List["MobilitySubResult"]]] = relationship(back_populates="main_objective", cascade="all, delete")
 
+    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    # municipality: Mapped["Municipality"] = relationship()    
+
 class MobilitySubResult(Base):
     __tablename__ = "mobility_subresult"
 
@@ -114,6 +126,9 @@ class MobilitySubResult(Base):
     spatial_impact: Mapped[Optional[Spatial_impact_enum]]
     annotation: Mapped[Optional[str]]
     indicators: Mapped[Optional[List["Indicator"]]] = relationship(secondary=mobility_results_indicators_association, cascade="all, delete", passive_deletes=True)
+
+    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    # municipality: Mapped["Municipality"] = relationship()
 
 
 Impact_enum = Literal["positive", "negative", "no_effect"]
@@ -134,4 +149,13 @@ class ClimateSubmission(Base):
     impact_duration: Mapped[Optional[Impact_duration_enum]]
     alternative_desc: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=text("now()"))
+
+    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    # municipality: Mapped["Municipality"] = relationship()
+
+class Municipality(Base):
+    __tablename__ = "municipality"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, nullable=False, unique=True)
+    name: Mapped[str]
 
