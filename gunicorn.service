@@ -1,14 +1,14 @@
 [Unit]
-Description=stellplatztool
+Description=bewertungstool
 After=network.target
 
 [Service]
-User=namowo
-Group=namowo
-WorkingDirectory=/home/namowo/app/src/
-Environment="PATH=/home/namwo/app/venv/bin"
-EnvironmentFile=/home/namowo/.env
-ExecStart=/home/namowo/app/venv/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
+User=jgrobe
+Group=jgrobe
+WorkingDirectory=/home/jgrobe/pimoo-backend/
+Environment="PATH=/home/jgrobe/pimoo-backend/venv/bin"
+EnvironmentFile=/home/jgrobe/.env
+ExecStart=/home/jgrobe/pimoo-backend/venv/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
 
 [Install]
 WantedBy=multi-user.target

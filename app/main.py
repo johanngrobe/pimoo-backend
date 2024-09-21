@@ -9,7 +9,7 @@ from .config import settings
 # Create the database tables, if they do not exist. Not needed if using Alembic
 # models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(root_path=settings.ROOT_PATH)
 
 app.add_middleware(
     CORSMiddleware,
