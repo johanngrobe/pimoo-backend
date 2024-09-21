@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.TagOut])
+@router.get("", response_model=List[schemas.TagOut])
 def get_tags(db: Session = Depends(get_db)):
 
     tag = db.query(models.Tag).all()
@@ -36,7 +36,7 @@ def get_tag(id: int, db: Session = Depends(get_db)):
     return tag
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
 
     new_tag = models.Tag(**tag.model_dump())

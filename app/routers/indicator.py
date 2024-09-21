@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.IndicatorOut])
+@router.get("", response_model=List[schemas.IndicatorOut])
 def get_indicators(db: Session = Depends(get_db)):
 
     indicators = db.query(models.Indicator).order_by(models.Indicator.label).all()
@@ -36,7 +36,7 @@ def get_indicator(id: int, db: Session = Depends(get_db)):
     return indicator
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.IndicatorOut)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=schemas.IndicatorOut)
 def create_indicator(indicator: schemas.IndicatorCreate, db: Session = Depends(get_db)):
 
     new_indicator = models.TextBlock(

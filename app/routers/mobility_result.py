@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.MobilityResultOut])
+@router.get("", response_model=List[schemas.MobilityResultOut])
 def get_mobility_results(db: Session = Depends(get_db)):
 
     result = db.query(models.MobilityResult).filter(models.MobilityResult.id == id).all()
@@ -36,7 +36,7 @@ def get_mobility_result(id: int, db: Session = Depends(get_db)):
     return result
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_mobility_result(mobility_result: schemas.MobilityResultCreate, db: Session = Depends(get_db)):
 
     new_result = models.MobilityResult(**mobility_result.model_dump())

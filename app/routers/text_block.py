@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.TextBlockOut])
+@router.get("", response_model=List[schemas.TextBlockOut])
 def get_text_blocks(db: Session = Depends(get_db)):
 
     text_blocks = db.query(models.TextBlock).order_by(models.TextBlock.label).all()
@@ -36,7 +36,7 @@ def get_text_block(id: int, db: Session = Depends(get_db)):
     return text_block
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.TextBlockOut)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=schemas.TextBlockOut)
 def create_text_block(text_block: schemas.TextBlockCreate, db: Session = Depends(get_db)):
 
     new_text_block = models.TextBlock(
