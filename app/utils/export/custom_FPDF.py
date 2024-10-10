@@ -92,7 +92,7 @@ class FPDF(FPDF):
         self.multi_cell(0,5, txt=F"{submission.label}",new_x="LMARGIN", new_y="NEXT")
         self.cell(30,5, txt="**Beschreibung:**", markdown=True)
         self.multi_cell(0,5, txt=f"{submission.desc}",new_x="LMARGIN", new_y="NEXT")
-        self.cell(30,5, txt="**Bearbeiter*in:**", markdown=True)
+        self.cell(30,5, txt="**Sachbearbeitung:**", markdown=True)
         self.cell(0,5, txt=f"{submission.author}", new_x="LMARGIN",new_y="NEXT")
 
         self.cell(0,3, new_x="LMARGIN", new_y="NEXT")
@@ -129,36 +129,40 @@ class FPDF(FPDF):
             
             self.set_line_width(0.25)
 
-            self.cell(10,10, txt=f"**{main_objective.main_objective.no}**", markdown=True, border="B")
+            self.cell(10,10, txt=f"**{main_objective.main_objective.no}**", markdown=True)
 
-            self.multi_cell(145,10, txt=f"**{main_objective.main_objective.label}**", markdown=True, border="B", max_line_height=5, padding=padding, new_y="TOP")
+            self.multi_cell(145,10, txt=f"**{main_objective.main_objective.label}**", markdown=True,  max_line_height=5, padding=padding, new_y="TOP")
 
             display_impact = get_display_impact(average_impact_main_objectives[main_objective.main_objective_id], main_objective.target)
 
             self.set_fill_color(r=display_impact["color"]["r"], g=display_impact["color"]["g"], b =display_impact["color"]["b"])
 
-            self.multi_cell(35,10, txt=f"**Gesamtwirkung:** \n{display_impact["label"]}", markdown=True, fill=True, border="B", max_line_height=5, new_x="LMARGIN", new_y="NEXT")
+            self.multi_cell(35,10, txt=f"**Gesamtwirkung:** \n{display_impact["label"]}", markdown=True, fill=True, max_line_height=5, new_x="LMARGIN", new_y="NEXT")
 
             self.set_line_width(0.1)
 
             for index, sub_objective in enumerate(main_objective.sub_objectives):
-                if index == 0:
-                    self.set_line_width(0.25)
-                else:
-                    self.set_line_width(0.1)
-
-                self.cell(10, 10, txt=f"{main_objective.main_objective.no}.{
-                sub_objective.sub_objective.no}", markdown=True, border="T")
-
-                self.multi_cell(145,10, txt=f"{sub_objective.sub_objective.label}", markdown=True, max_line_height=5, border="T", padding=padding, new_y="TOP")
-                display_impact = get_display_impact(sub_objective.impact, sub_objective.target)
-                self.set_fill_color(r=display_impact["color"]["r"], g=display_impact["color"]["g"], b =display_impact["color"]["b"])
-
-                if not sub_objective.target:
-                    self.multi_cell(35,10, txt=f"**Wirkung:**\n{display_impact["label"]}", markdown=True,border="T",max_line_height=5, fill=True, new_x="LMARGIN", new_y="NEXT")
 
                 if sub_objective.target:
-                    self.multi_cell(35,10, txt=f"**Wirkung:**\n{sub_objective.impact}", markdown=True,border="T",max_line_height=5, fill=True, new_x="LEFT", new_y="NEXT")
+                    if index == 0:
+                        self.set_line_width(0.25)
+                    else:
+                        self.set_line_width(0.1)
+                    
+                    self.cell(0,0, border="T", new_x="LMARGIN", new_y="NEXT")
+
+                    self.cell(10, 10, txt=f"{main_objective.main_objective.no}.{
+                    sub_objective.sub_objective.no}", markdown=True, border="T")
+
+                    self.multi_cell(145,10, txt=f"{sub_objective.sub_objective.label}", markdown=True, max_line_height=5, border="T", padding=padding, new_y="TOP")
+                    display_impact = get_display_impact(sub_objective.impact, sub_objective.target)
+                    self.set_fill_color(r=display_impact["color"]["r"], g=display_impact["color"]["g"], b =display_impact["color"]["b"])
+
+                # if not sub_objective.target:
+                #     self.multi_cell(35,10, txt=f"**Wirkung:**\n{display_impact["label"]}", markdown=True,border="T",max_line_height=5, fill=True, new_x="LMARGIN", new_y="NEXT")
+
+                
+                    self.multi_cell(35,10, txt=f"**Wirkung:**\n{display_impact["label"]}", markdown=True,border="T",max_line_height=5, fill=True, new_x="LEFT", new_y="NEXT")
                     self.multi_cell(35,15, txt=f"\n**Räumlich:**\n{label_mobility_spatial_impact(sub_objective.spatial_impact)}", markdown=True,max_line_height=5, new_x="LMARGIN", new_y="TOP")
                     self.cell(10, 5)
                     # table_x = self.get_x()
@@ -171,8 +175,8 @@ class FPDF(FPDF):
 
             if not ix == len(submission.objectives) - 1:
                 self.set_line_width(0.5)
-                self.cell(0, 2, border="B", new_x="LMARGIN", new_y="NEXT")
-                self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+                self.cell(0, 1, border="B", new_x="LMARGIN", new_y="NEXT")
+                self.cell(0, 1, new_x="LMARGIN", new_y="NEXT")
         # Create a bytes buffer to save the self
         pdf_output = io.BytesIO()
         self.output(pdf_output)
