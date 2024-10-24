@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
+from fastapi import Response, status, HTTPException, Depends, APIRouter
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from typing import List, Optional
-from sqlalchemy import func, desc
-import io
+from typing import List
+from sqlalchemy import desc
 from .. import models, schemas
 from ..database import get_db
-from ..utils.export.custom_FPDF import FPDF
+from ..utils.fpdf import FPDF
 
 router = APIRouter(
     prefix="/submission",

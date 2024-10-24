@@ -1,3 +1,5 @@
+from ..database import Base
+
 from .association_tables import (
     text_block_tag_association, 
     indicator_tag_association, 
@@ -12,3 +14,4 @@ from .mobility_result import MobilityResult
 from .mobility_subresult import MobilitySubresult
 from .climate_submission import ClimateSubmission
 from .municipality import Municipality
+from .user import User

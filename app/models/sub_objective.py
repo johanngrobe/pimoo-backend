@@ -11,8 +11,9 @@ class SubObjective(Base):
     main_objective_id: Mapped[int] = mapped_column(ForeignKey("main_objective.id"), nullable=False)
     main_objective: Mapped["MainObjective"] = relationship(back_populates="sub_objectives",cascade="all, delete")
 
-    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
-    # municipality: Mapped["Municipality"] = relationship()
+    municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    municipality: Mapped["Municipality"] = relationship()
 
 # Late imports
 from .main_objective import MainObjective
+from .municipality import Municipality

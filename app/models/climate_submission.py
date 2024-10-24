@@ -1,8 +1,9 @@
 from ..database import Base
 from datetime import datetime, date
 from typing import Optional, Literal
+from sqlalchemy import ForeignKey
 from sqlalchemy.sql import text
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 
 Impact_enum = Literal["positive", "negative", "no_effect"]
@@ -23,3 +24,9 @@ class ClimateSubmission(Base):
     impact_duration: Mapped[Optional[Impact_duration_enum]]
     alternative_desc: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=text("now()"))
+
+    municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    municipality: Mapped["Municipality"] = relationship()
+
+# Late imports
+from .municipality import Municipality

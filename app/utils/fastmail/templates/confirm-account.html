@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Mail-Bestätigung</title>
+</head>
+<body>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <p>Hallo {{ first_name }} {{ last_name }},</p>
+
+        <p>Bitte bestätige deinen Account, indem du auf den folgenden Link klickst:</p>
+        <p><a href="{{ token }}" style="color: #1a73e8;">E-Mail-Adresse bestätigen</a></p>
+
+        <p>Falls du diesen Link nicht anklicken kannst, kopiere die folgende URL in deinen Browser:</p>
+        <p>{{ token }}</p>
+
+        <p>Wir freuen uns, dass Sie sich für den Mobilitätscheck für Magistratsvorlagen angemeldet haben!</p>
+
+        <p>Viele Grüße,<br>
+        Ihr pimoo-Forschungsteam</p>
+    </div>
+</body>
+</html>

@@ -18,9 +18,10 @@ class MobilityResult(Base):
 
     sub_objectives: Mapped[Optional[List["MobilitySubresult"]]] = relationship(back_populates="main_objective", cascade="all, delete")
 
-    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
-    # municipality: Mapped["Municipality"] = relationship()
+    municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    municipality: Mapped["Municipality"] = relationship()
 
 # Late imports
 from .mobility_submission import MobilitySubmission
 from .mobility_subresult import MobilitySubresult
+from .municipality import Municipality

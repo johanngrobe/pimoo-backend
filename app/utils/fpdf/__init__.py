@@ -23,8 +23,9 @@ class FPDF(FPDF):
         self.ln(15)
 
     def footer(self):
-        self.set_y(-15)
+        self.set_y(-20)
         self.set_font('helvetica', '', 8)
+        self.cell(0, 10, 'Hinweis: Die zu den Indiaktoren zugehörigen Dokumente finden Sie alle im Wissensspeicher', new_x="LMARGIN", new_y="NEXT")
         self.cell(0, 10, f"Seite {self.page_no()}/{{nb}}", align="C")
 
     def export_climate_submission(self, submission):

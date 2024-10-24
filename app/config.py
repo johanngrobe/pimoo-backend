@@ -10,14 +10,22 @@ class Settings(BaseSettings):
     DATABASE_PASSWORD: str
     DATABASE_NAME: str
     DATABASE_USERNAME: str
-    SECRET_KEY: str
-    ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    JWT_SECRET_KEY: str
+    RESET_PASSWORD_TOKEN_SECRET: str
+    VERIFICATION_TOKEN_SECRET: str
+    JWT_LIFETIME_SECONDS: int
     ALLOW_ORIGINS: List[str]
     ROOT_PATH: str
-
-    # class Config:
-    #     env_file = ".env"
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: str
+    MAIL_SERVER: str
+    MAIL_FROM_NAME: str
+    MAIL_STARTTLS: bool
+    MAIL_SSL_TLS: bool
+    USE_CREDENTIALS: bool
+    VALIDATE_CERTS: bool
 
 
 settings = Settings()

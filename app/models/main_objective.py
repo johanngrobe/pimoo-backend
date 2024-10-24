@@ -1,5 +1,6 @@
 from ..database import Base
 from typing import List
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 
@@ -11,8 +12,9 @@ class MainObjective(Base):
     label: Mapped[str]
     sub_objectives: Mapped[List["SubObjective"]] = relationship(back_populates="main_objective", cascade="all, delete")
 
-    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
-    # municipality: Mapped["Municipality"] = relationship()
+    municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    municipality: Mapped["Municipality"] = relationship()
 
 # Late imports
 from .sub_objective import SubObjective
+from .municipality import Municipality

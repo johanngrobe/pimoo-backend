@@ -1,6 +1,7 @@
 from ..database import Base
 from datetime import datetime, date
 from typing import List, Optional
+from sqlalchemy import ForeignKey
 from sqlalchemy.sql import text
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
@@ -17,8 +18,9 @@ class MobilitySubmission(Base):
 
     objectives: Mapped[Optional[List["MobilityResult"]]] = relationship(back_populates="submission", cascade="all, delete-orphan", passive_deletes=True)
 
-    # municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
-    # municipality: Mapped["Municipality"] = relationship()
+    municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
+    municipality: Mapped["Municipality"] = relationship()
 
 # Late imports
 from .mobility_result import MobilityResult
+from .municipality import Municipality

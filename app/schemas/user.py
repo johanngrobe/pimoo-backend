@@ -1,37 +1,45 @@
 from pydantic import BaseModel, ConfigDict ,EmailStr
-from typing import List, Optional
-from datetime import datetime, date
+from fastapi_users import schemas
+from typing import Optional
 from enum import Enum
+from datetime import datetime
+from uuid import UUID
+from .municipality import MunicipalityOut
 
-class UserBase(BaseModel):
-    email: EmailStr
+class RoleEnum(str, Enum):
+    ADMIN = "admin"
+    ADMINISTRATION = "administration"
+    POLITICIAN = "politician"
 
-class UserCredentials(UserBase):
+class UserRead(schemas.BaseUser[UUID]):
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+    
     first_name: str
     last_name: str
-    organization: str
-    street: str
-    house_number: str
-    postal_code: str
-    city: str
-    country: str
-
-class UserCreate(UserCredentials):
-    password: str
-
-class UserOut(UserBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    role: str
-    created_at: datetime
+    role: RoleEnum
+    municipality: MunicipalityOut
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+class UserCreate(schemas.BaseUserCreate):
+    first_name: str
+    last_name: str
+    role: RoleEnum
+    municipality_id: int
 
 
-class TokenData(BaseModel):
-    id: Optional[int] = None
-    role: Optional[str] = None
+class UserUpdate(schemas.BaseUserUpdate):
+    first_name: str
+    last_name: str
+    role: RoleEnum
+    municipality_id: int
+
+
+# class Token(BaseModel):
+#     access_token: str
+#     token_type: str
+
+
+# class TokenData(BaseModel):
+#     id: Optional[UUID] = None
+#     role: Optional[str] = None
+#     municipality_id: Optional[int] = None
