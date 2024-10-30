@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool
     USE_CREDENTIALS: bool
     VALIDATE_CERTS: bool
+    VITE_FRONTEND_URL: str
+    VITE_BACKEND_URL: str
+    DOMAIN: str
 
 
 settings = Settings()

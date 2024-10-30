@@ -6,7 +6,7 @@ from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
     CookieTransport,
-    JWTStrategy,
+    JWTStrategy
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 
@@ -16,6 +16,8 @@ from .fastmail import Mail
 from ..database import get_user_db
 from .. import models
 from ..config import settings
+from ..utils.url import add_query_params
+from .options import USER_ROLES
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[models.User, UUID]):
@@ -28,7 +30,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[models.User, UUID]):
         user_dict = {
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "role": user.role,
+            "role": USER_ROLES[user.role],
             "municipality": user.municipality.name,
         }
         print(user_dict)
@@ -49,13 +51,13 @@ class UserManager(UUIDIDMixin, BaseUserManager[models.User, UUID]):
     ):
         print(f"User {user.id} has forgot their password. Reset token: {token}")
 
+        url = add_query_params(f"{settings.VITE_FRONTEND_URL}/reset-password", {"token": token })
+
         user_dict = {
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "role": user.role,
-            "token": token
+            "url": url
         }
-        print(user)
 
         message = MessageSchema(
         subject="Passwort zurücksetzen",
@@ -71,22 +73,24 @@ class UserManager(UUIDIDMixin, BaseUserManager[models.User, UUID]):
     ):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
+        url = add_query_params(f"{settings.VITE_FRONTEND_URL}/verify-account", {"token": token })
+        
         user_dict = {
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "role": user.role,
+            "role": USER_ROLES[user.role],
             "municipality": user.municipality.name,
-            "token": token
+            "url": url
         }
 
         message = MessageSchema(
-        subject="Willkommen beim Mobilitätscheck für Magistratsvorlagen von pimoo",
+        subject="Account bestätigen",
         recipients=[user.email],  # List of recipients
         template_body=user_dict,
         subtype=MessageType.html
         )
 
-        await Mail.send_message(message, template_name="confirm-account.html")
+        await Mail.send_message(message, template_name="verify-account.html")
         
 
     async def on_after_verify(
@@ -94,12 +98,13 @@ class UserManager(UUIDIDMixin, BaseUserManager[models.User, UUID]):
     ):
         print(f"User {user.id} has been verified")
 
-
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
 
 
-cookie_transport = CookieTransport(cookie_httponly=True, cookie_secure=True, cookie_max_age=3600)
+cookie_transport = CookieTransport(cookie_httponly=True, 
+                                   cookie_secure=True, 
+                                   cookie_max_age=settings.JWT_LIFETIME_SECONDS)
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -114,4 +119,6 @@ auth_backend = AuthenticationBackend(
 
 fastapi_users = FastAPIUsers[models.User, UUID](get_user_manager, [auth_backend])
 
-current_active_user = fastapi_users.current_user(active=True)
+current_user = fastapi_users.current_user()
+current_active_user = fastapi_users.current_user(active=True, verified=True)
+current_superuser = fastapi_users.current_user(superuser=True)

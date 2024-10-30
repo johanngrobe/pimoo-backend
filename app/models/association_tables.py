@@ -14,8 +14,8 @@ text_block_tag_association = Table(
 indicator_tag_association = Table(
     'indicator_tag',
     Base.metadata,
-    Column('indicator_id', Integer, ForeignKey('indicator.id')),
-    Column('tag_id', Integer, ForeignKey('tag.id'))
+    Column('indicator_id', Integer, ForeignKey('indicator.id', ondelete="CASCADE")),
+    Column('tag_id', Integer, ForeignKey('tag.id', ondelete="CASCADE"))
 )
 
 # association table for many-to-many relationship between mobility_results and indicators

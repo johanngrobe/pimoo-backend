@@ -7,7 +7,6 @@ from uuid import UUID
 from .municipality import MunicipalityOut
 
 class RoleEnum(str, Enum):
-    ADMIN = "admin"
     ADMINISTRATION = "administration"
     POLITICIAN = "politician"
 
@@ -17,6 +16,7 @@ class UserRead(schemas.BaseUser[UUID]):
     first_name: str
     last_name: str
     role: RoleEnum
+    municipality_id: int
     municipality: MunicipalityOut
 
 
@@ -28,10 +28,10 @@ class UserCreate(schemas.BaseUserCreate):
 
 
 class UserUpdate(schemas.BaseUserUpdate):
-    first_name: str
-    last_name: str
-    role: RoleEnum
-    municipality_id: int
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    role: Optional[RoleEnum] = None
+    municipality_id: Optional[int] = None
 
 
 # class Token(BaseModel):

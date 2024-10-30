@@ -25,12 +25,8 @@ class MobilitySubresult(Base):
     annotation: Mapped[Optional[str]]
     indicators: Mapped[Optional[List[Indicator]]] = relationship(secondary=mobility_results_indicators_association, cascade="all, delete", passive_deletes=True)
 
-    municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
-    municipality: Mapped["Municipality"] = relationship()
-
 # Late imports
 from .mobility_result import MobilityResult
-from .municipality import Municipality
 
 
 

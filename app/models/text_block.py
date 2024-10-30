@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship, mapped_column, Mapped
 from .tag import Tag
 from .municipality import Municipality
 from .association_tables import text_block_tag_association
+from fastapi_users_db_sqlalchemy.generics import GUID
 
 class TextBlock(Base):
     __tablename__ = "text_block"
@@ -17,4 +18,10 @@ class TextBlock(Base):
     municipality_id: Mapped[int] = mapped_column(ForeignKey("municipality.id"))
     municipality: Mapped["Municipality"] = relationship()
 
+    created_by: Mapped[Optional[GUID]] = mapped_column(ForeignKey("user.id"))
+    author: Mapped[Optional["User"]] = relationship(foreign_keys=[created_by])
+    last_edited_by: Mapped[Optional[GUID]] = mapped_column(ForeignKey("user.id"))
+    last_editor: Mapped[Optional["User"]] = relationship(foreign_keys=[last_edited_by])
+
 # Late imports
+from .user import User

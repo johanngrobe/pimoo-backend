@@ -7,10 +7,13 @@ class MobilityResultBase(BaseModel):
     submission_id: int
     main_objective_id: int
     target: bool
-    # municipality_id: int
 
 class MobilityResultCreate(MobilityResultBase):
     pass
+
+class MobilityResultUpdate(BaseModel):
+    target: Optional[bool] = None
+
 
 class MobilityResultOut(MobilityResultBase):
     model_config = ConfigDict(from_attributes=True)
@@ -33,11 +36,17 @@ class MobilitySubResultBase(BaseModel):
     impact: Optional[int] = None
     spatial_impact: Optional[str] = None
     annotation: Optional[str] = None
-    # municipality_id: int
     
 
 class MobilitySubResultCreate(MobilitySubResultBase):
     indicator_ids: Optional[List[int]] = []
+
+class MobilitySubResultUpdate(BaseModel):
+    target: Optional[bool] = None
+    impact: Optional[int] = None
+    spatial_impact: Optional[str] = None
+    annotation: Optional[str] = None
+    indicator_ids: Optional[List[int]] = None
 
 class MobilitySubResultOut(MobilitySubResultBase):
     model_config = ConfigDict(from_attributes=True)
