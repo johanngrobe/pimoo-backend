@@ -1,19 +1,21 @@
+from app.database import Base
+
 # Association Models
-from app.models.association_indicator_tag_model import indicator_tag_association
-from app.models.association_text_block_tag_model import text_block_tag_association
-from app.models.association_results_indicators_model import (
+from .association_indicator_tag_model import indicator_tag_association
+from .association_text_block_tag_model import text_block_tag_association
+from .association_results_indicators_model import (
     mobility_results_indicators_association,
 )
 
 # Models
-from app.models.user_model import User
-from app.models.municipality_model import Municipality
-from app.models.main_objective_model import MainObjective
-from app.models.sub_objective_model import SubObjective
-from app.models.tag_model import Tag
-from app.models.text_block_model import TextBlock
-from app.models.indicator_model import Indicator
-from app.models.mobility_submission_model import MobilitySubmission
-from app.models.mobility_result_model import MobilityResult
-from app.models.mobility_subresult_model import MobilitySubresult
-from app.models.climate_submission_model import ClimateSubmission
+from .user_model import User
+from .municipality_model import Municipality
+from .main_objective_model import MainObjective
+from .sub_objective_model import SubObjective
+from .tag_model import Tag
+from .text_block_model import TextBlock
+from .indicator_model import Indicator
+from .mobility_submission_model import MobilitySubmission
+from .mobility_result_model import MobilityResult
+from .mobility_subresult_model import MobilitySubresult
+from .climate_submission_model import ClimateSubmission

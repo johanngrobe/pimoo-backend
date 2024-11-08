@@ -63,8 +63,7 @@ class ClimateSubmission(Base):
         comment="Estimated duration of the impact (e.g., short, medium, long).",
     )
     alternative_desc: Mapped[Optional[str]] = mapped_column(
-        nullable=True,
-        comment="Description of alternative solutions or adaptations.",
+        nullable=True, comment="Description of alternative solutions or adaptations."
     )
     created_at: Mapped[datetime] = mapped_column(
         nullable=False,

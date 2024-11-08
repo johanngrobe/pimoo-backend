@@ -1,7 +1,7 @@
 from typing import List, Union
 
 from app.crud.base_crud import CRUDBase
-from app.models import SubObjective
+from app.models import SubObjective, User
 from app.schemas import SubObjectiveCreate, SubObjectiveUpdate
 
 
@@ -9,24 +9,16 @@ class CRUDSubObjective(CRUDBase[SubObjective, SubObjectiveCreate, SubObjectiveUp
     def __init__(self):
         super().__init__(SubObjective)
 
-    def sort(
-        self, 
-        data: Union[List[SubObjective], SubObjective], 
-        ascending: bool = True
-    ) -> Union[List[SubObjective], SubObjective]:
-        """
-        Sorts a list of SubObjective records or a single SubObjective by `MainObjective.no` first,
-        and then by `SubObjective.no`.
-        """
-        def sort_key(sub_obj: SubObjective):
-            # Sorting by MainObjective.no first, then by SubObjective.no
-            return (sub_obj.main_objective.no, sub_obj.no)
+    async def get_all(self, db, user: User) -> List[SubObjective]:
 
-        if isinstance(data, list):
-            data.sort(key=sort_key, reverse=not ascending)
-        elif isinstance(data, SubObjective):
-            pass
+        sort_params = [("main_objective.no", "asc"), ("no", "asc")]
 
-        return data
+        return await super().get_by_key(
+            db=db,
+            key="muncipality_id",
+            value=user.muncipality_id,
+            sort_params=sort_params,
+        )
+
 
 crud_sub_objective = CRUDSubObjective()

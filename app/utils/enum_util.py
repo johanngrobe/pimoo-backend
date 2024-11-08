@@ -20,5 +20,5 @@ class SpatialImpactEnum(str, Enum):
 
 
 class RoleEnum(str, Enum):
-    ADMINISTRATION = "administration"
-    POLITICIAN = "politician"
+    administration = "administration"
+    politician = "politician"

@@ -6,11 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import text
 
 from app.database import Base
-
-
-class RoleEnum(str, Enum):
-    administation = "administration"
-    politician = "politician"
+from app.utils.enum_util import RoleEnum
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):

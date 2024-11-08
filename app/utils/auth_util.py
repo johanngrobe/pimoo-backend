@@ -1,8 +1,16 @@
+from __future__ import annotations
+
 from app.crud.exceptions import AuthorizationError
-from app.models import User
 
 
 def check_user_authorization(user: User, municipality_id: int):
+    """
+    Check if a user is authorized to access a specific municipality.
+
+    :param user: The user instance to check.
+    :param municipality_id: The ID of the municipality to access.
+    :raises AuthorizationError: If the user is not authorized to access the resource.
+    """
     grant_access = True
 
     if not (municipality_id == user.municipality_id):

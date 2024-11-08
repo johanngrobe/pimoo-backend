@@ -25,9 +25,7 @@ async def get_climate_submissions(
 ):
     return await crud.get_all(
         db=db,
-        municipality_id=user.municipality_id,
-        order_by=ClimateSubmission.created_at,
-        ascending=False,
+        user=user,
     )
 
 
@@ -45,7 +43,9 @@ async def filter_climate_submissions(
     # Remove None values from keys
     keys = {k: v for k, v in keys.items() if v is not None}
 
-    return await crud.get_by_multi_keys(db=db, keys=keys)
+    sort_params = [("created_at", "desc")]
+
+    return await crud.get_by_multi_keys(db=db, keys=keys, sort_params=sort_params)
 
 
 @router.get("/{id}", response_model=ClimateSubmissionRead)

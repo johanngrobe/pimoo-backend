@@ -22,8 +22,7 @@ async def get_sub_objectives(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    instances = await crud.get_all(db, user.municipality_id)
-    return crud.sort(instances)
+    return await crud.get_all(db, user)
 
 
 @router.get("/{id}", response_model=SubObjectiveBasicRead)
