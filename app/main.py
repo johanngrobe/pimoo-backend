@@ -1,27 +1,21 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import models, schemas
-from .database import engine
-from .routers import (auth,
-                      main_objective,
-                      sub_objective,
-                      mobility_submission, 
-                      climate_submission,
-                      mobility_result,
-                      mobility_subresult,
-                      tag, 
-                      text_block, 
-                      indicator,
-                      option)
+from app.config import settings
+from app.crud.exceptions import AuthorizationError, DatabaseCommitError, NotFoundError
+from app.exceptions import (
+    authorization_exception_handler,
+    database_commit_exception_handler,
+    not_found_exception_handler,
+)
+from app.routers.api import router
 
-from .config import settings
-from .utils.fastapi_users import auth_backend, current_active_user, fastapi_users
 
-# Create the database tables, if they do not exist. Not needed if using Alembic
-# models.Base.metadata.create_all(bind=engine)
+app = FastAPI(title=settings.PROJECT_NAME, root_path=settings.ROOT_PATH)
 
-app = FastAPI(root_path=settings.ROOT_PATH)
+app.add_exception_handler(AuthorizationError, authorization_exception_handler)
+app.add_exception_handler(DatabaseCommitError, database_commit_exception_handler)
+app.add_exception_handler(NotFoundError, not_found_exception_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,41 +25,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(
-    fastapi_users.get_auth_router(auth_backend), prefix="/auth", tags=["auth"]
-)
-app.include_router(
-    fastapi_users.get_register_router(schemas.UserRead, schemas.UserCreate),
-    prefix="/auth",
-    tags=["auth"],
-)
-app.include_router(
-    fastapi_users.get_reset_password_router(),
-    prefix="/auth",
-    tags=["auth"],
-)
-app.include_router(
-    fastapi_users.get_verify_router(schemas.UserRead),
-    prefix="/auth",
-    tags=["auth"],
-)
-app.include_router(auth.router)
-app.include_router(
-    fastapi_users.get_users_router(schemas.UserRead, schemas.UserUpdate),
-    prefix="/users",
-    tags=["users"],
-)
-app.include_router(mobility_submission.router)
-app.include_router(climate_submission.router)
-app.include_router(tag.router)
-app.include_router(text_block.router)
-app.include_router(indicator.router)
-app.include_router(main_objective.router)
-app.include_router(sub_objective.router)
-app.include_router(mobility_result.router)
-app.include_router(mobility_subresult.router)
-app.include_router(option.router)
-
-
-
-
+app.include_router(router)
