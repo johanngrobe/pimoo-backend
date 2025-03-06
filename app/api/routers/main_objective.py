@@ -21,7 +21,15 @@ async def get_main_objectives(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    return await crud.get_all(db, user)
+    sort_params = [("no", "asc"), ("sub_objectives", ("no", "asc"))]
+
+    # Fetch all records using get_all
+    return await crud.get_by_key(
+        db,
+        key="municipality_id",
+        value=user.municipality_id,
+        sort_params=sort_params,
+    )
 
 
 @router.get("/{id}", response_model=ReadSchema)

@@ -23,7 +23,14 @@ async def get_mobility_submissions(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    return await crud.get_all(db=db, user=user)
+    sort_params = [("created_at", "desc")]
+
+    return await crud.get_by_key(
+        db=db,
+        key="municipality_id",
+        value=user.municipality_id,
+        sort_params=sort_params,
+    )
 
 
 @router.post(

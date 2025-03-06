@@ -23,9 +23,13 @@ async def get_climate_submissions(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    return await crud.get_all(
+    sort_params = [("created_at", "desc")]
+
+    return await crud.get_by_key(
         db=db,
-        user=user,
+        key="municipality_id",
+        value=user.municipality_id,
+        sort_params=sort_params,
     )
 
 

@@ -14,14 +14,6 @@ class CRUDClimateSubmission(CRUDSubmission[Model, CreateSchema, UpdateSchema]):
     def __init__(self):
         super().__init__(Model)
 
-    async def get_all(self, db: AsyncSession, user: User) -> Model:
-        return await super().get_by_key(
-            db=db,
-            key="municipality_id",
-            value=user.municipality_id,
-            sort_params=[("created_at", "desc")],
-        )
-
     async def copy(self, db: AsyncSession, id: int, user: User) -> Model:
         exclude = ["id", "created_at"]
 
