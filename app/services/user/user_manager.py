@@ -4,7 +4,7 @@ from fastapi import Request
 from fastapi_users import BaseUserManager, UUIDIDMixin
 from uuid import UUID
 
-from app.models import User
+from app.models.user import User
 from app.config import settings
 from app.services.mail.messages import (
     send_welcome,

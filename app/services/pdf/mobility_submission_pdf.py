@@ -1,7 +1,7 @@
 from io import BytesIO
 from os import path
 
-from app.models import MobilitySubmission
+from app.models.mobility_submission import MobilitySubmission
 from app.services.pdf.base_pdf import BasePDF
 from app.utils.pdf_util import calculate_average_impact, get_display_impact
 from app.utils.label_util import label_mobility_spatial_impact

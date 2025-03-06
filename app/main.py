@@ -8,7 +8,7 @@ from app.exceptions import (
     database_commit_exception_handler,
     not_found_exception_handler,
 )
-from app.routers.api import router
+from app.api.main import router
 
 
 app = FastAPI(title=settings.PROJECT_NAME, root_path=settings.ROOT_PATH)

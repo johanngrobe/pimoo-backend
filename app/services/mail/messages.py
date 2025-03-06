@@ -1,7 +1,7 @@
 from fastapi_mail import MessageSchema, MessageType
 
 from app.config import settings
-from app.models import User
+from app.models.user import User
 from app.services.mail.config_mail import Mail
 from app.utils.options_util import USER_ROLES
 from app.utils.url_util import add_query_params

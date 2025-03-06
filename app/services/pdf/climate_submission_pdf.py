@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from app.models import ClimateSubmission
+from app.models.climate_submission import ClimateSubmission
 from app.services.pdf.base_pdf import BasePDF
 from app.utils.label_util import (
     label_climate_impact,
