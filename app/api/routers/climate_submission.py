@@ -5,20 +5,20 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.climate_submission import crud_climate_submission as crud
-from app.dependencies import current_active_user, get_async_session
+from app.core.deps import current_active_user, get_async_session
 from app.models.user import User
 from app.schemas.climate_submission import (
-    ClimateSubmissionCreate,
-    ClimateSubmissionUpdate,
-    ClimateSubmissionRead,
-    ClimateSubmissionFilter,
+    ClimateSubmissionCreate as CreateSchema,
+    ClimateSubmissionUpdate as UpdateSchema,
+    ClimateSubmissionRead as ReadSchema,
+    ClimateSubmissionFilter as FilterSchema,
 )
 from app.utils.auth_util import check_user_authorization
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[ClimateSubmissionRead])
+@router.get("", response_model=List[ReadSchema])
 async def get_climate_submissions(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
@@ -33,16 +33,19 @@ async def get_climate_submissions(
     )
 
 
-@router.post("/filter", response_model=List[ClimateSubmissionRead])
+@router.get("/by-params", response_model=List[ReadSchema])
 async def filter_climate_submissions(
-    filters: ClimateSubmissionFilter,
+    user_role: bool = None,
+    user_id: bool = None,
+    is_published: bool = None,
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
+    filters = FilterSchema(user_role=user_role, user_id=user_id, published=is_published)
     keys = {
-        "author.role": user.role if filters.by_user_role else None,
+        "author.role": user.role if filters.user_role else None,
         "is_published": filters.is_published,
-        "created_by": user.id if filters.by_user_id else None,
+        "created_by": user.id if filters.user_id else None,
     }
     # Remove None values from keys
     keys = {k: v for k, v in keys.items() if v is not None}
@@ -52,7 +55,7 @@ async def filter_climate_submissions(
     return await crud.get_by_multi_keys(db=db, keys=keys, sort_params=sort_params)
 
 
-@router.get("/{id}", response_model=ClimateSubmissionRead)
+@router.get("/{id}", response_model=ReadSchema)
 async def get_climate_submission(
     id: int,
     db: AsyncSession = Depends(get_async_session),
@@ -64,7 +67,7 @@ async def get_climate_submission(
     return instance
 
 
-@router.post("/copy/{id}", response_model=ClimateSubmissionRead)
+@router.post("/copy/{id}", response_model=ReadSchema)
 async def copy_climate_submission(
     id: int,
     db: AsyncSession = Depends(get_async_session),
@@ -90,11 +93,9 @@ async def export_climate_submission(
     return StreamingResponse(export, media_type="application/pdf", headers=headers)
 
 
-@router.post(
-    "", status_code=status.HTTP_201_CREATED, response_model=ClimateSubmissionRead
-)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=ReadSchema)
 async def create_climate_submission(
-    submission: ClimateSubmissionCreate,
+    submission: CreateSchema,
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
@@ -102,10 +103,10 @@ async def create_climate_submission(
     return await crud.create(db, submission, user)
 
 
-@router.patch("/{id}", response_model=ClimateSubmissionRead)
+@router.patch("/{id}", response_model=ReadSchema)
 async def update_climate_submission(
     id: int,
-    updates: ClimateSubmissionUpdate,
+    updates: UpdateSchema,
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):

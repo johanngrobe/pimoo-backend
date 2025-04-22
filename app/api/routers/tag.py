@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.tag import crud_tag as crud
-from app.dependencies import current_active_user, get_async_session
+from app.core.deps import current_active_user, get_async_session
 from app.models.user import User
 from app.schemas.tag import (
     TagCreate as CreateSchema,

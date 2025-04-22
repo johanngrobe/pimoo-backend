@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.core.db import Base
 
 
 class Municipality(Base):
@@ -19,7 +19,7 @@ class Municipality(Base):
         nullable=False, comment="Name of the municipality."
     )
     users: Mapped[Optional[List["User"]]] = relationship(
-        back_populates="municipality", lazy="selectin"
+        back_populates="municipality", cascade="all, delete", lazy="selectin"
     )
 
 

@@ -11,8 +11,8 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
-from app.config import settings
-from app.database import async_session_maker
+from app.core.config import settings
+from app.core.db import async_session_maker
 from app.models.user import User
 from app.services.user.user_manager import UserManager
 

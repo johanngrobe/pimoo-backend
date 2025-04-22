@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.mobility_subresult import crud_mobility_subresult as crud
-from app.dependencies import current_active_user, get_async_session
+from app.core.deps import current_active_user, get_async_session
 from app.models.indicator import Indicator
 from app.schemas.mobility_subresult import (
     MobilitySubResultCreate as CreateSchema,

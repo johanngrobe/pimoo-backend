@@ -176,9 +176,9 @@ class ClimateSubmissionFilter(BaseModel):
     is_published: Optional[bool] = Field(
         None, description="Filter by publication status."
     )
-    by_user_id: Optional[bool] = Field(
+    user_id: Optional[bool] = Field(
         False, description="Filter submissions by the current user's ID."
     )
-    by_user_role: Optional[bool] = Field(
+    user_role: Optional[bool] = Field(
         None, description="Filter submissions based on the user's role."
     )

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.main_objective import crud_main_objective as crud
-from app.dependencies import current_active_user, get_async_session
+from app.core.deps import current_active_user, get_async_session
 from app.models.user import User
 from app.schemas.main_objective import (
     MainObjectiveCreate as CreateSchema,
@@ -21,7 +21,7 @@ async def get_main_objectives(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    sort_params = [("no", "asc"), ("sub_objectives", ("no", "asc"))]
+    sort_params = [("no", "asc")]
 
     # Fetch all records using get_all
     return await crud.get_by_key(

@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.mobility_submission import crud_mobility_submission as crud
-from app.dependencies import current_active_user, get_async_session
+from app.core.deps import current_active_user, get_async_session
 from app.models.user import User
 from app.schemas.mobility_submission import (
     MobilitySubmissionCreate as CreateSchema,
@@ -33,21 +33,28 @@ async def get_mobility_submissions(
     )
 
 
-@router.post(
-    "/filter",
+@router.get(
+    "/by-params",
     response_model=List[ReadSchema],
     status_code=status.HTTP_200_OK,
 )
 async def filter_mobility_submissions(
-    filters: FilterSchema,
+    user_role: bool = None,
+    is_published: bool = None,
+    user_id: bool = None,
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
+    schema = FilterSchema(
+        user_role=user_role,
+        user_id=user_id,
+        is_published=is_published,
+    )
     # create a dictionary of keys to filter by
     keys = {
-        "author.role": user.role if filters.by_user_role else None,
-        "is_published": filters.is_published,
-        "created_by": user.id if filters.by_user_id else None,
+        "author.role": user.role if schema.user_role else None,
+        "is_published": schema.is_published,
+        "created_by": user.id if schema.user_id else None,
     }
     # Remove None values from keys
     keys = {k: v for k, v in keys.items() if v is not None}

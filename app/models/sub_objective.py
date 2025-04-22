@@ -4,7 +4,7 @@ from fastapi_users_db_sqlalchemy.generics import GUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.core.db import Base
 
 
 class SubObjective(Base):
@@ -22,21 +22,21 @@ class SubObjective(Base):
         nullable=False, comment="Label or name of sub objective"
     )
     main_objective_id: Mapped[int] = mapped_column(
-        ForeignKey("main_objective.id"),
+        ForeignKey("main_objective.id", ondelete="CASCADE"),
         nullable=False,
         comment="Main objective ID associated with the sub objective",
     )
     main_objective: Mapped["MainObjective"] = relationship(
-        back_populates="sub_objectives", cascade="all, delete", lazy="selectin"
+        back_populates="sub_objectives", lazy="selectin"
     )
     municipality_id: Mapped[int] = mapped_column(
-        ForeignKey("municipality.id"),
+        ForeignKey("municipality.id", ondelete="CASCADE"),
         nullable=False,
         comment="Municipality ID by which the sub objective is associated.",
     )
     municipality: Mapped["Municipality"] = relationship(lazy="selectin")
     created_by: Mapped[Optional[GUID]] = mapped_column(
-        ForeignKey("user.id"),
+        ForeignKey("user.id", ondelete="SET NULL"),
         nullable=True,
         comment="User ID of the creator of the sub objective.",
     )
@@ -44,7 +44,9 @@ class SubObjective(Base):
         foreign_keys=[created_by], lazy="selectin"
     )
     last_edited_by: Mapped[Optional[GUID]] = mapped_column(
-        ForeignKey("user.id"), nullable=True, comment="User ID of the last editor."
+        ForeignKey("user.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="User ID of the last editor.",
     )
     last_editor: Mapped[Optional["User"]] = relationship(
         foreign_keys=[last_edited_by], lazy="selectin"

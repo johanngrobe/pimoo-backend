@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.dependencies import auth_backend, fastapi_users
+from app.core.deps import auth_backend, fastapi_users
 from app.api.routers import (
     climate_submission,
     indicator,

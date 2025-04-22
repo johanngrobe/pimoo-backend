@@ -11,8 +11,8 @@ class MobilityResultBase(BaseModel):
     main_objective_id: int = Field(
         ..., description="ID of the main objective associated with this result."
     )
-    target: bool = Field(
-        ..., description="Indicates whether the target was met for this objective."
+    target: Optional[bool] = Field(
+        False, description="Indicates whether the target was met for this objective."
     )
 
 

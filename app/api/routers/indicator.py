@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.indicator import crud_indicator as crud
-from app.dependencies import current_active_user, get_async_session
+from app.core.deps import current_active_user, get_async_session
 from app.models.indicator import Indicator
 from app.models.user import User
 from app.models.tag import Tag
@@ -19,7 +19,11 @@ async def get_indicators(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    return await crud.get_all(db, user.municipality_id, Indicator.label)
+
+    sort_params = [("label", "asc")]
+    return await crud.get_all(
+        db=db, municipality_id=user.municipality_id, sort_params=sort_params
+    )
 
 
 @router.get("/{id}", response_model=IndicatorDetailRead)

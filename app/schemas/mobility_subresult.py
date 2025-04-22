@@ -17,7 +17,7 @@ class MobilitySubResultBase(BaseModel):
         ..., description="ID of the associated sub-objective."
     )
     target: Optional[bool] = Field(
-        None, description="Indicates if the target was achieved."
+        False, description="Indicates if the target was achieved."
     )
     impact: Optional[int] = Field(
         None, ge=-3, le=3, description="Impact score, ranging from -3 to 3."

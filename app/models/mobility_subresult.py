@@ -3,7 +3,7 @@ from typing import List, Optional, Literal
 from enum import Enum
 from sqlalchemy import CheckConstraint, ForeignKey
 from sqlalchemy.orm import relationship, mapped_column, Mapped
-from app.database import Base
+from app.core.db import Base
 
 from .association_results_indicators import (
     mobility_results_indicators_association,
@@ -36,7 +36,7 @@ class MobilitySubresult(Base):
         back_populates="sub_objectives", lazy="selectin"
     )
     sub_objective_id: Mapped[int] = mapped_column(
-        ForeignKey("sub_objective.id"),
+        ForeignKey("sub_objective.id", ondelete="CASCADE"),
         nullable=False,
         comment="Sub Objective ID by which the mobility subresult is associated",
     )
@@ -45,7 +45,6 @@ class MobilitySubresult(Base):
         nullable=False, default=False, comment="Sub Objective is targeted or not"
     )
     impact: Mapped[Optional[int]] = mapped_column(
-        CheckConstraint("impact_adaption BETWEEN -3 AND 3"),
         nullable=True,
         comment="Impact on the sub objective on a scale from -3 to 3",
     )
@@ -58,7 +57,6 @@ class MobilitySubresult(Base):
     )
     indicators: Mapped[Optional[List["Indicator"]]] = relationship(
         secondary=mobility_results_indicators_association,
-        cascade="all, delete",
         passive_deletes=True,
         lazy="selectin",
     )

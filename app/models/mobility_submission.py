@@ -6,7 +6,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import text
 
-from app.database import Base
+from app.core.db import Base
 
 
 class MobilitySubmission(Base):
@@ -44,19 +44,21 @@ class MobilitySubmission(Base):
         lazy="selectin",
     )
     municipality_id: Mapped[int] = mapped_column(
-        ForeignKey("municipality.id"),
+        ForeignKey("municipality.id", ondelete="CASCADE"),
         nullable=False,
         comment="Municipality ID by which the mobility submission is associated.",
     )
     municipality: Mapped["Municipality"] = relationship(lazy="selectin")
     created_by: Mapped[Optional[GUID]] = mapped_column(
-        ForeignKey("user.id"),
+        ForeignKey("user.id", ondelete="SET NULL"),
         nullable=True,
         comment="User ID of the creator of the mobility submission.",
     )
     author: Mapped["User"] = relationship(foreign_keys=[created_by], lazy="joined")
     last_edited_by: Mapped[Optional[GUID]] = mapped_column(
-        ForeignKey("user.id"), nullable=True, comment="User ID of the last editor."
+        ForeignKey("user.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="User ID of the last editor.",
     )
     last_editor: Mapped["User"] = relationship(
         foreign_keys=[last_edited_by], lazy="joined"

@@ -15,7 +15,9 @@ from sqlalchemy import desc, asc
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import aliased, joinedload, RelationshipProperty, Query
+from sqlalchemy.orm import aliased, joinedload, RelationshipProperty
+from sqlalchemy.sql import Select
+
 
 from app.crud.exceptions import DatabaseCommitError, NotFoundError
 from app.models.user import User
@@ -49,85 +51,129 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 statement = statement.options(joinedload(field))
         return statement
 
-    def sort(
-        self,
-        data: Union[List[ModelType], ModelType],
-        sort_params: List[
-            Tuple[str, Union[str, Tuple[str, Union[str, Tuple[str, str]]]]]
-        ],
-    ) -> Union[List[ModelType], ModelType]:
+    # def sort(
+    #     self,
+    #     data: Union[List[ModelType], ModelType],
+    #     sort_params: List[
+    #         Tuple[str, Union[str, Tuple[str, Union[str, Tuple[str, str]]]]]
+    #     ],
+    # ) -> Union[List[ModelType], ModelType]:
+    #     """
+    #     Generalized sorting function for any object with support for deeply nested attributes.
+
+    #     :param data: A single instance or a list of instances to sort.
+    #     :param sort_params: List of tuples specifying sorting instructions:
+    #                         - For main attributes: (field, "asc" or "desc")
+    #                         - For nested attributes: (relationship, (field, "asc" or "desc"))
+    #                         - Supports multi-level nesting.
+    #     :return: The sorted data, with specified attributes sorted as per sort_params.
+    #     """
+
+    #     def sort_key(instance: Any, field: str, ascending: bool) -> Any:
+    #         """Generate a sorting key based on a field and order."""
+    #         value = getattr(instance, field, None)
+    #         return (
+    #             value
+    #             if ascending
+    #             else (-value if isinstance(value, (int, float)) else value)
+    #         )
+
+    #     def apply_nested_sorting(
+    #         instance: Any, nested_sort_params: List[Tuple[str, Union[str, Tuple]]]
+    #     ):
+    #         """Recursively apply sorting to nested attributes."""
+    #         for attr, sort_instruction in nested_sort_params:
+    #             if isinstance(sort_instruction, tuple):
+    #                 # Handle deeper nesting, e.g., "objectives.sub_objectives.no"
+    #                 if isinstance(sort_instruction[1], tuple):
+    #                     nested_attr, nested_sort_instruction = sort_instruction
+    #                     nested_data = getattr(instance, attr, None)
+    #                     if isinstance(nested_data, list):
+    #                         # Sort the current level
+    #                         field, order = nested_sort_instruction
+    #                         ascending = order == "asc"
+    #                         nested_data.sort(
+    #                             key=lambda item: getattr(item, field),
+    #                             reverse=not ascending,
+    #                         )
+
+    #                         # Recursively sort deeper levels
+    #                         for item in nested_data:
+    #                             apply_nested_sorting(
+    #                                 item, [(nested_attr, nested_sort_instruction)]
+    #                             )
+    #                 else:
+    #                     # Handle single-level nesting, e.g., "objectives.no"
+    #                     field, order = sort_instruction
+    #                     ascending = order == "asc"
+    #                     nested_data = getattr(instance, attr, None)
+    #                     if isinstance(nested_data, list):
+    #                         nested_data.sort(
+    #                             key=lambda item: getattr(item, field),
+    #                             reverse=not ascending,
+    #                         )
+
+    #     # Main sorting function
+    #     if isinstance(data, list):
+    #         # If data is a list, apply top-level sorting
+    #         for attr, sort_instruction in sort_params:
+    #             if isinstance(sort_instruction, str):
+    #                 # Top-level sorting
+    #                 ascending = sort_instruction == "asc"
+    #                 data.sort(key=lambda item: sort_key(item, attr, ascending))
+    #             else:
+    #                 # Nested attribute sorting (if it includes a tuple for deeper sorting)
+    #                 for instance in data:
+    #                     apply_nested_sorting(instance, [(attr, sort_instruction)])
+    #     else:
+    #         # If data is a single object, only apply nested sorting
+    #         apply_nested_sorting(data, sort_params)
+
+    #     return data
+
+    def apply_sorting(self, statement: Select, model, sort_params):
         """
-        Generalized sorting function for any object with support for deeply nested attributes.
+        Applies sorting to an SQLAlchemy query at the database level.
 
-        :param data: A single instance or a list of instances to sort.
-        :param sort_params: List of tuples specifying sorting instructions:
-                            - For main attributes: (field, "asc" or "desc")
-                            - For nested attributes: (relationship, (field, "asc" or "desc"))
-                            - Supports multi-level nesting.
-        :return: The sorted data, with specified attributes sorted as per sort_params.
+        Args:
+            statement (Select): The SQLAlchemy statement to modify.
+            model: The SQLAlchemy model to sort.
+            sort_params (List[Tuple]): Sorting parameters.
+
+        Returns:
+            Select: The modified statement with sorting applied.
         """
+        alias_map = {}
 
-        def sort_key(instance: Any, field: str, ascending: bool) -> Any:
-            """Generate a sorting key based on a field and order."""
-            value = getattr(instance, field, None)
-            return (
-                value
-                if ascending
-                else (-value if isinstance(value, (int, float)) else value)
-            )
+        for attr, sort_instruction in sort_params:
+            if isinstance(sort_instruction, str):
+                # Single field sorting: e.g., ("no", "asc")
+                order = asc if sort_instruction == "asc" else desc
+                column = getattr(model, attr, None)
+                if column is not None:
+                    statement = statement.order_by(order(column))
 
-        def apply_nested_sorting(
-            instance: Any, nested_sort_params: List[Tuple[str, Union[str, Tuple]]]
-        ):
-            """Recursively apply sorting to nested attributes."""
-            for attr, sort_instruction in nested_sort_params:
-                if isinstance(sort_instruction, tuple):
-                    # Handle deeper nesting, e.g., "objectives.sub_objectives.no"
-                    if isinstance(sort_instruction[1], tuple):
-                        nested_attr, nested_sort_instruction = sort_instruction
-                        nested_data = getattr(instance, attr, None)
-                        if isinstance(nested_data, list):
-                            # Sort the current level
-                            field, order = nested_sort_instruction
-                            ascending = order == "asc"
-                            nested_data.sort(
-                                key=lambda item: getattr(item, field),
-                                reverse=not ascending,
-                            )
+            elif isinstance(sort_instruction, tuple):
+                # Nested sorting: e.g., ("main_objective", ("no", "asc"))
+                related_attr, nested_sort = sort_instruction
+                related_model = getattr(model, related_attr, None)
 
-                            # Recursively sort deeper levels
-                            for item in nested_data:
-                                apply_nested_sorting(
-                                    item, [(nested_attr, nested_sort_instruction)]
-                                )
+                if related_model is not None:
+                    if related_attr not in alias_map:
+                        related_alias = aliased(related_model)  # Create alias for JOIN
+                        alias_map[related_attr] = related_alias
+                        statement = statement.join(related_alias)  # Apply JOIN
                     else:
-                        # Handle single-level nesting, e.g., "objectives.no"
-                        field, order = sort_instruction
-                        ascending = order == "asc"
-                        nested_data = getattr(instance, attr, None)
-                        if isinstance(nested_data, list):
-                            nested_data.sort(
-                                key=lambda item: getattr(item, field),
-                                reverse=not ascending,
-                            )
+                        related_alias = alias_map[related_attr]
 
-        # Main sorting function
-        if isinstance(data, list):
-            # If data is a list, apply top-level sorting
-            for attr, sort_instruction in sort_params:
-                if isinstance(sort_instruction, str):
-                    # Top-level sorting
-                    ascending = sort_instruction == "asc"
-                    data.sort(key=lambda item: sort_key(item, attr, ascending))
-                else:
-                    # Nested attribute sorting (if it includes a tuple for deeper sorting)
-                    for instance in data:
-                        apply_nested_sorting(instance, [(attr, sort_instruction)])
-        else:
-            # If data is a single object, only apply nested sorting
-            apply_nested_sorting(data, sort_params)
+                    field, order = nested_sort
+                    order = asc if order == "asc" else desc
+                    nested_column = getattr(related_alias, field, None)
 
-        return data
+                    if nested_column is not None:
+                        statement = statement.order_by(order(nested_column))
+
+        return statement
 
     async def get_all(
         self,
@@ -142,6 +188,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Retrieve all records for the model, optionally filtering by municipality_id.
         """
         statement = select(self.model)
+        # Apply sorting
+        statement = self.apply_sorting(statement, self.model, sort_params)
         statement = self.extend_statement(statement, extra_fields=extra_fields)
 
         if municipality_id is not None:
@@ -154,7 +202,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             raise NotFoundError(self.model.__name__)
 
             # Apply recursive in-memory sorting for nested attributes
-        instances = self.sort(instances, sort_params)
+        # instances = self.sort(instances, sort_params)
 
         return instances
 
@@ -184,6 +232,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         extra_fields: List[Any] = [],
     ) -> Optional[ModelType]:
         statement = select(self.model).where(getattr(self.model, key) == value)
+        statement = self.apply_sorting(statement, self.model, sort_params)
         statement = self.extend_statement(statement, extra_fields=extra_fields)
         result = await db.execute(statement)
         instances = result.scalars().all()
@@ -191,8 +240,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if not instances:
             raise NotFoundError(self.model.__name__, key, value)
 
-            # Apply recursive in-memory sorting for nested attributes
-        instances = self.sort(instances, sort_params)
+        #     # Apply recursive in-memory sorting for nested attributes
+        # instances = self.sort(instances, sort_params)
 
         return instances
 
@@ -249,6 +298,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 # Simple attribute (non-nested)
                 statement = statement.where(getattr(self.model, key) == value)
 
+        # Apply sorting
+        statement = self.apply_sorting(statement, self.model, sort_params)
         # Extend statement with any extra_fields for eager loading
         statement = self.extend_statement(statement, extra_fields=extra_fields)
 
@@ -259,7 +310,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             raise NotFoundError(self.model.__name__, keys)
 
             # Apply recursive in-memory sorting for nested attributes
-        instances = self.sort(instances, sort_params)
+        # instances = self.sort(instances, sort_params)
 
         return instances
 
@@ -281,6 +332,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await db.commit()
             await db.refresh(new_instance)
         except SQLAlchemyError as e:
+            print(e)
             await db.rollback()
             raise DatabaseCommitError(e)
 
@@ -290,8 +342,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         db: AsyncSession,
         obj_in: CreateSchemaType,
-        user: User,
         association_fields: Dict[str, Tuple[Type[ModelType], str]],
+        user: Optional[User] = None,
     ) -> ModelType:
         # Create a copy of obj_in, excluding any association fields
         obj_in_data = obj_in.model_copy(
@@ -351,10 +403,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db: AsyncSession,
         id: Any,
         obj_in: UpdateSchemaType,
-        user: User,  # Replace `User` with the actual user type if necessary
         association_fields: Dict[
             str, Tuple[Type[ModelType], str]
         ],  # {"tag_ids": (Tag, "tags"), "indicator_ids": (Indicator, "indicators")}
+        user: Optional[User] = None,
     ) -> Optional[ModelType]:
 
         # Create a copy of obj_in with association fields set to None
@@ -395,4 +447,5 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await db.commit()
         except SQLAlchemyError as e:
             await db.rollback()
+            print(e)
             raise DatabaseCommitError(e)

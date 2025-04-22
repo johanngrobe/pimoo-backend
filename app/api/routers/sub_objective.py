@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.sub_objective import crud_sub_objective as crud
-from app.dependencies import current_active_user, get_async_session
+from app.core.deps import current_active_user, get_async_session
 from app.models.user import User
 from app.schemas.sub_objective import (
     SubObjectiveCreate as CreateSchema,
@@ -24,10 +24,29 @@ async def get_sub_objectives(
 ):
     sort_params = [("main_objective.no", "asc"), ("no", "asc")]
 
-    return await super().get_by_key(
+    return await crud.get_by_key(
         db=db,
         key="municipality_id",
         value=user.municipality_id,
+        sort_params=sort_params,
+    )
+
+
+@router.get("/by-params", response_model=List[ReadSchema])
+async def get_by_params(
+    main_objective_id: int,
+    db: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_active_user),
+):
+    keys = {
+        "municipality_id": user.municipality_id,
+        "main_objective_id": main_objective_id,
+    }
+    sort_params = [("no", "asc")]
+
+    return await crud.get_by_multi_keys(
+        db=db,
+        keys=keys,
         sort_params=sort_params,
     )
 

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.municipality import crud_municipality as crud
-from app.dependencies import current_active_user, get_async_session
+from app.core.deps import current_active_user, get_async_session
 from app.schemas.municipality import MunicipalityRead
 from app.utils.label_util import (
     CLIMATE_IMPACT_LABELS,

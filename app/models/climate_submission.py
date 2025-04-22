@@ -1,14 +1,12 @@
 from typing import Optional
 
 from datetime import datetime, date
-from enum import Enum
 from fastapi_users_db_sqlalchemy.generics import GUID
 from sqlalchemy import CheckConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import text
 
-from app.database import Base
-from app.utils.enum_util import ImpactEnum, ImpactDurationEnum
+from app.core.db import Base
 
 
 class ClimateSubmission(Base):
@@ -40,7 +38,7 @@ class ClimateSubmission(Base):
     label: Mapped[str] = mapped_column(
         nullable=False, comment="Short descriptive title or label for the submission."
     )
-    impact: Mapped[ImpactEnum] = mapped_column(
+    impact: Mapped[str] = mapped_column(
         nullable=False,
         comment="Estimated impact on climate (e.g., positive, negative, no effect).",
     )
@@ -58,7 +56,7 @@ class ClimateSubmission(Base):
         nullable=True,
         comment="Detailed description of the estimated impact on climate.",
     )
-    impact_duration: Mapped[Optional[ImpactDurationEnum]] = mapped_column(
+    impact_duration: Mapped[Optional[str]] = mapped_column(
         nullable=True,
         comment="Estimated duration of the impact (e.g., short, medium, long).",
     )
@@ -71,19 +69,28 @@ class ClimateSubmission(Base):
         comment="Date and time the submission was created.",
     )
     municipality_id: Mapped[int] = mapped_column(
-        ForeignKey("municipality.id"),
+        ForeignKey(
+            "municipality.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         comment="ID of the municipality that submitted the project.",
     )
     municipality: Mapped["Municipality"] = relationship(lazy="selectin")
     created_by: Mapped[Optional[GUID]] = mapped_column(
-        ForeignKey("user.id"),
+        ForeignKey(
+            "user.id",
+            ondelete="SET NULL",
+        ),
         nullable=True,
         comment="ID of the user who created the submission.",
     )
     author: Mapped[Optional["User"]] = relationship(foreign_keys=[created_by])
     last_edited_by: Mapped[Optional[GUID]] = mapped_column(
-        ForeignKey("user.id"),
+        ForeignKey(
+            "user.id",
+            ondelete="SET NULL",
+        ),
         nullable=True,
         comment="ID of the user who last edited the submission.",
     )
@@ -91,6 +98,7 @@ class ClimateSubmission(Base):
     is_published: Mapped[bool] = mapped_column(
         nullable=False,
         default=False,
+        server_default="f",
         comment="Flag indicating whether the submission is published.",
     )
 
