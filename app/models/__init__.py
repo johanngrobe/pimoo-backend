@@ -1,18 +1,22 @@
 from app.core.db import Base
 
-from app.models.association_indicator_tag import indicator_tag_association
-from app.models.association_results_indicators import (
-    mobility_results_indicators_association,
+from app.models.assoziation_indikator_tag import indikator_tag_assoziation
+from app.models.assoziation_mobilitaetscheckEingabeZielUnter_indikator import (
+    mobilitaetscheckEingabeZielUnter_indikator_assoziation,
 )
-from app.models.association_text_block_tag import text_block_tag_association
-from app.models.climate_submission import ClimateSubmission
-from app.models.indicator import Indicator
-from app.models.main_objective import MainObjective
-from app.models.mobility_result import MobilityResult
-from app.models.mobility_submission import MobilitySubmission
-from app.models.mobility_subresult import MobilitySubresult
-from app.models.municipality import Municipality
-from app.models.sub_objective import SubObjective
+from app.models.assoziation_textblock_tag import textblock_tag_assoziation
+from app.models.gemeinde import Gemeinde
+from app.models.klimacheckEingabe import KlimacheckEingabe
+from app.models.indikator import Indikator
+from app.models.mobilitaetscheck_ziel_ober import MobilitaetscheckZielOber
+from app.models.mobilitaetscheck_ziel_unter import MobilitaetscheckZielUnter
+from app.models.mobilitaetscheck_eingabe import MobilitaetscheckEingabe
+from app.models.mobilitaetscheck_eingabe_ziel_ober import (
+    MobilitaetscheckEingabeZielOber,
+)
+from app.models.mobilitaetscheck_eingabe_ziel_unter import (
+    MobilitaetscheckEingabeZielUnter,
+)
 from app.models.tag import Tag
-from app.models.text_block import TextBlock
+from app.models.textblock import Textblock
 from app.models.user import User

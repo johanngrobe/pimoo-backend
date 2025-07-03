@@ -6,31 +6,30 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import text
 
 from app.core.db import Base
-from app.utils.enum_util import RoleEnum
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
     __tablename__ = "user"
 
-    first_name: Mapped[str] = mapped_column(
-        nullable=False, comment="First name of the user."
+    vorname: Mapped[str] = mapped_column(
+        nullable=False, comment="Vorname des Benutzers"
     )
-    last_name: Mapped[str] = mapped_column(
-        nullable=False, comment="Last name of the user."
+    nachname: Mapped[str] = mapped_column(
+        nullable=False, comment="Nachname des Benutzers"
     )
-    role: Mapped[RoleEnum] = mapped_column(nullable=False, comment="Role of the user.")
+    rolle: Mapped[str] = mapped_column(nullable=False, comment="Rolle des Benutzers")
 
-    municipality_id: Mapped[int] = mapped_column(
-        ForeignKey("municipality.id", ondelete="CASCADE"),
+    gemeinde_id: Mapped[int] = mapped_column(
+        ForeignKey("gemeinde.id", ondelete="CASCADE"),
         nullable=False,
-        comment="Municipality ID by which the user is associated.",
+        comment="Gemeinde ID, mit der der Benutzer verknüpft ist",
     )
-    municipality: Mapped["Municipality"] = relationship(
-        back_populates="users", lazy="selectin"
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        nullable=False, server_default=text("now()"), comment="Date of creation."
+    gemeinde: Mapped["Gemeinde"] = relationship(back_populates="users", lazy="selectin")
+    erstellt_am: Mapped[datetime] = mapped_column(
+        nullable=False,
+        server_default=text("now()"),
+        comment="Zeitpunkt der Erstellung des Benutzers",
     )
 
 
-from app.models.municipality import Municipality
+from app.models.gemeinde import Gemeinde

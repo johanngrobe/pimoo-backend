@@ -1,8 +1,8 @@
 # Translation for ClimateImpactEnum values to German labels
 CLIMATE_IMPACT_LABELS = {
-    "positive": "positiv",
-    "negative": "negativ",
-    "no_effect": "keine Auswirkung",
+    "positiv": "positiv",
+    "negativ": "negativ",
+    "kein_effekt": "keine Auswirkung",
 }
 
 
@@ -15,16 +15,16 @@ CLIMATE_IMPACT_GHG_LABELS = {
 
 
 CLIMATE_IMPACT_DURATION_LABELS = {
-    "short": "< 1 Jahr",
-    "medium": "1-5 Jahre",
-    "long": "> 5 Jahre",
+    "kurzfristig": "< 1 Jahr",
+    "mittelfristig": "1-5 Jahre",
+    "langfristig": "> 5 Jahre",
 }
 
 
 MOBILITY_SPATIAL_IMPACT_LABELS = {
-    "locally": "lokal",
-    "districtwide": "quartiersweit",
-    "citywide": "stadtweit",
+    "lokal": "lokal",
+    "quartiersweit": "quartiersweit",
+    "stadtweit": "stadtweit",
 }
 
 

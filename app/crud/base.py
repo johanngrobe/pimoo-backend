@@ -178,7 +178,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get_all(
         self,
         db: AsyncSession,
-        municipality_id: Optional[int] = None,
+        gemeinde_id: Optional[int] = None,
         sort_params: List[
             Tuple[str, Union[str, Tuple[str, Union[str, Tuple[str, str]]]]]
         ] = [],
@@ -192,8 +192,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         statement = self.apply_sorting(statement, self.model, sort_params)
         statement = self.extend_statement(statement, extra_fields=extra_fields)
 
-        if municipality_id is not None:
-            statement = statement.where(self.model.municipality_id == municipality_id)
+        if gemeinde_id is not None:
+            statement = statement.where(self.model.gemeinde_id == gemeinde_id)
 
         result = await db.execute(statement)
         instances = result.scalars().all()
@@ -321,9 +321,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_data = obj_in.model_dump(exclude_none=True, exclude_unset=True)
 
         if user:
-            obj_data["municipality_id"] = user.municipality_id
-            obj_data["created_by"] = user.id
-            obj_data["last_edited_by"] = user.id
+            obj_data["gemeinde_id"] = user.gemeinde_id
+            obj_data["erstellt_von"] = user.id
+            obj_data["zuletzt_bearbeitet_von"] = user.id
 
         new_instance = self.model(**obj_data)
         db.add(new_instance)
@@ -385,7 +385,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         update_data = obj_in.model_dump(exclude_none=True, exclude_unset=True)
 
         if user:
-            update_data["last_edited_by"] = user.id
+            update_data["zuletzt_bearbeitet_von"] = user.id
 
         for field, value in update_data.items():
             setattr(instance, field, value)

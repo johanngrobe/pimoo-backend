@@ -2,16 +2,16 @@ from fastapi import APIRouter
 
 from app.core.deps import auth_backend, fastapi_users
 from app.api.routers import (
-    climate_submission,
-    indicator,
-    main_objective,
-    mobility_result,
-    mobility_submission,
-    mobility_subresult,
+    indikator,
+    klimacheck,
+    mobilitaetscheck_eingabe,
+    mobilitaetscheck_eingabe_ziel_ober,
+    mobilitaetscheck_eingabe_ziel_unter,
+    mobilitaetscheck_ziel_ober,
+    mobilitaetscheck_ziel_unter,
     option,
-    sub_objective,
     tag,
-    text_block,
+    textblock,
 )
 from app.schemas.user import UserRead, UserCreate, UserUpdate
 
@@ -37,30 +37,46 @@ router.include_router(
     tags=["Users"],
 )
 router.include_router(
-    mobility_submission.router,
-    prefix="/submission/mobility",
-    tags=["Mobility Submission"],
+    mobilitaetscheck_eingabe.router,
+    prefix="/mobilitaetscheck/eingabe",
+    tags=["Mobilitätscheck", "Eingabe"],
 )
 router.include_router(
-    climate_submission.router,
-    prefix="/submission/climate",
-    tags=["Climate Submission"],
+    klimacheck.router,
+    prefix="/klimacheck/eingabe",
+    tags=["Klimacheck", "Eingabe"],
 )
 router.include_router(
-    mobility_result.router, prefix="/mobility-result", tags=["Mobility Result"]
+    mobilitaetscheck_eingabe_ziel_ober.router,
+    prefix="/mobilitaetscheck/eingabe/ziel/ober",
+    tags=["Mobilitätscheck", "Eingabe"],
 )
 router.include_router(
-    mobility_subresult.router,
-    prefix="/mobility-result/sub",
-    tags=["Mobility Subresult"],
-)
-router.include_router(indicator.router, prefix="/indicator", tags=["Indicator"])
-router.include_router(text_block.router, prefix="/text-block", tags=["Text Block"])
-router.include_router(tag.router, prefix="/tag", tags=["Tag"])
-router.include_router(
-    main_objective.router, prefix="/objective/main", tags=["Main Objective"]
+    mobilitaetscheck_eingabe_ziel_unter.router,
+    prefix="/mobilitaetscheck/eingabe/ziel/unter",
+    tags=["Mobilitätscheck", "Eingabe"],
 )
 router.include_router(
-    sub_objective.router, prefix="/objective/sub", tags=["Sub Objective"]
+    indikator.router,
+    prefix="/einstellungen/indikator",
+    tags=["Einstellungen", "Indikator"],
+)
+router.include_router(
+    textblock.router,
+    prefix="/einstellungen/textblock",
+    tags=["Einstellungen", "Textblock"],
+)
+router.include_router(
+    tag.router, prefix="/einstellungen/tag", tags=["Einestellungen", "Tag"]
+)
+router.include_router(
+    mobilitaetscheck_ziel_ober.router,
+    prefix="/einstellungen/mobilitaetscheck/ziel/ober",
+    tags=["Einstellungen", "Mobilitätscheck"],
+)
+router.include_router(
+    mobilitaetscheck_ziel_unter.router,
+    prefix="/einstellungen/mobilitaetscheck/ziel/unter",
+    tags=["Einstellungen", "Mobilitätscheck"],
 )
 router.include_router(option.router, prefix="/option", tags=["Option"])

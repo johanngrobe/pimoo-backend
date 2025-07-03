@@ -2,23 +2,23 @@ from enum import Enum
 
 
 class ImpactEnum(str, Enum):
-    positive = "positive"
-    negative = "negative"
-    no_effect = "no_effect"
+    positiv = "positiv"
+    negativ = "negativ"
+    kein_effekt = "kein_effekt"
 
 
 class ImpactDurationEnum(str, Enum):
-    short = "short"
-    medium = "medium"
-    long = "long"
+    kurzfristig = "kurzfristig"
+    mittelfristig = "mittelfristig"
+    langfristig = "langfristig"
 
 
 class SpatialImpactEnum(str, Enum):
-    locally = "locally"
-    districtwide = "districtwide"
-    citywide = "citywide"
+    lokal = "lokal"
+    quartiersweit = "quartiersweit"
+    stadtweit = "stadtweit"
 
 
 class RoleEnum(str, Enum):
-    administration = "administration"
-    politician = "politician"
+    verwaltung = "verwaltung"
+    politik = "politik"

@@ -3,9 +3,9 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.municipality import crud_municipality as crud
+from app.crud.gemeinde import crud_gemeinde as crud
 from app.core.deps import current_active_user, get_async_session
-from app.schemas.municipality import MunicipalityRead
+from app.schemas.gemeinde import GemeindeRead
 from app.utils.label_util import (
     CLIMATE_IMPACT_LABELS,
     CLIMATE_IMPACT_GHG_LABELS,
@@ -19,21 +19,21 @@ router = APIRouter()
 
 
 @router.get(
-    "/municipality",
-    response_model=List[MunicipalityRead],
+    "/gemeinde",
+    response_model=List[GemeindeRead],
     status_code=status.HTTP_200_OK,
 )
 async def get_municipality_options(db: AsyncSession = Depends(get_async_session)):
-    return await crud.get_all(db)
+    return await crud.get_all(db=db, sort_params=[("name", "desc")])
 
 
-@router.get("/user-role", status_code=status.HTTP_200_OK)
+@router.get("/user-rolle", status_code=status.HTTP_200_OK)
 async def get_user_role_options():
     return [{"label": label, "value": value} for value, label in USER_ROLES.items()]
 
 
 @router.get(
-    "/climate/impact",
+    "/klimacheck/auswirkung",
     dependencies=[Depends(current_active_user)],
     status_code=status.HTTP_200_OK,
 )
@@ -46,7 +46,7 @@ async def get_climate_impact_options():
 
 
 @router.get(
-    "/climate/impact-ghg",
+    "/klimacheck/auswirkung-ghg",
     dependencies=[Depends(current_active_user)],
     status_code=status.HTTP_200_OK,
 )
@@ -59,7 +59,7 @@ async def get_climate_impact_ghg_options():
 
 
 @router.get(
-    "/climate/impact-duration",
+    "/klimacheck/auswirkung-dauer",
     dependencies=[Depends(current_active_user)],
     status_code=status.HTTP_200_OK,
 )
@@ -73,7 +73,7 @@ async def get_climate_impact_duration_options():
 
 
 @router.get(
-    "/mobility/spatial-impact",
+    "/mobilitaetscheck/auswirkung-raeumlich",
     dependencies=[Depends(current_active_user)],
     status_code=status.HTTP_200_OK,
 )
@@ -87,7 +87,7 @@ async def get_mobility_spatial_impact_options():
 
 
 @router.get(
-    "/mobility/impact-tickmarks",
+    "/mobilitaetscheck/auswirkung-tickmarks",
     dependencies=[Depends(current_active_user)],
     status_code=status.HTTP_200_OK,
 )

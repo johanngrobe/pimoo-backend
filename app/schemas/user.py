@@ -14,11 +14,11 @@ class UserRead(schemas.BaseUser[UUID]):
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
-    first_name: str = Field(..., description="User's first name.")
-    last_name: str = Field(..., description="User's last name.")
-    role: RoleEnum = Field(..., description="Role of the user in the system.")
-    municipality_id: int = Field(..., description="ID of the associated municipality.")
-    municipality: "MunicipalityRead" = Field(
+    vorname: str = Field(..., description="User's first name.")
+    nachname: str = Field(..., description="User's last name.")
+    rolle: RoleEnum = Field(..., description="Role of the user in the system.")
+    gemeinde_id: int = Field(..., description="ID of the associated municipality.")
+    gemeinde: "GemeindeRead" = Field(
         ..., description="Detailed information about the associated municipality."
     )
 
@@ -28,10 +28,10 @@ class UserCreate(schemas.BaseUserCreate):
     Schema for creating a new user, requiring essential details.
     """
 
-    first_name: str = Field(..., description="User's first name.")
-    last_name: str = Field(..., description="User's last name.")
-    role: RoleEnum = Field(..., description="Role of the user in the system.")
-    municipality_id: int = Field(..., description="ID of the associated municipality.")
+    vorname: str = Field(..., description="User's first name.")
+    nachname: str = Field(..., description="User's last name.")
+    rolle: RoleEnum = Field(..., description="Role of the user in the system.")
+    gemeinde_id: int = Field(..., description="ID of the associated municipality.")
 
 
 class UserUpdate(schemas.BaseUserUpdate):
@@ -39,17 +39,15 @@ class UserUpdate(schemas.BaseUserUpdate):
     Schema for updating an existing user. All fields are optional for partial updates.
     """
 
-    first_name: Optional[str] = Field(
-        None, description="Updated first name of the user."
-    )
-    last_name: Optional[str] = Field(None, description="Updated last name of the user.")
-    role: Optional[RoleEnum] = Field(
+    vorname: Optional[str] = Field(None, description="Updated first name of the user.")
+    nachname: Optional[str] = Field(None, description="Updated last name of the user.")
+    rolle: Optional[RoleEnum] = Field(
         None, description="Updated role of the user in the system."
     )
-    municipality_id: Optional[int] = Field(
+    gemeinde_id: Optional[int] = Field(
         None, description="Updated ID of the associated municipality."
     )
 
 
 # Late import for forward references
-from app.schemas.municipality import MunicipalityRead
+from app.schemas.gemeinde import GemeindeRead
