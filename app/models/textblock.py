@@ -19,6 +19,11 @@ class Textblock(Base):
         comment="Textblock ID",
     )
     name: Mapped[str] = mapped_column(nullable=False, comment="Name des Textblocks")
+    gemeindespezifisch: Mapped[bool] = mapped_column(
+        nullable=False,
+        default=False,
+        comment="Gibt an, ob der Textblock mit anderen Gemeinden geteilt wird oder gemeindespezifisch ist",
+    )
     tags: Mapped[Optional[List["Tag"]]] = relationship(
         secondary=textblock_tag_assoziation, cascade="all, delete", lazy="selectin"
     )

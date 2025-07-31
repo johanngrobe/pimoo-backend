@@ -41,9 +41,15 @@ class MobilitaetscheckEingabeZielUnter(Base):
         nullable=True,
         comment="Auswirkung des Unterziels",
     )
-    auswirkung_raeumlich: Mapped[Optional[str]] = mapped_column(
+    auswirkung_raeumlich_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("mobilitaetscheck_auswirkung_raeumlich.id", ondelete="CASCADE"),
         nullable=True,
         comment="Räumliche Auswirkung des Unterziels",
+    )
+    auswirkung_raeumlich: Mapped[Optional["MobilitaetscheckAuswirkungRaeumlich"]] = (
+        relationship(
+            lazy="selectin",
+        )
     )
     anmerkung: Mapped[Optional[str]] = mapped_column(
         nullable=True, comment="Anmerkung zum Unterziel"
@@ -56,6 +62,9 @@ class MobilitaetscheckEingabeZielUnter(Base):
 
 
 # Late imports
+from app.models.mobilitaetscheck_auswirkung_raeumlich import (
+    MobilitaetscheckAuswirkungRaeumlich,
+)
 from app.models.indikator import Indikator
 from app.models.mobilitaetscheck_ziel_unter import MobilitaetscheckZielUnter
 from app.models.mobilitaetscheck_eingabe_ziel_ober import (

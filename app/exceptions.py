@@ -13,4 +13,4 @@ async def database_commit_exception_handler(request: Request, exc: DatabaseCommi
 
 
 async def not_found_exception_handler(request: Request, exc: NotFoundError):
-    return JSONResponse(status_code=404, content={"message": exc.message})
+    return JSONResponse(status_code=204, content={"message": exc.message})

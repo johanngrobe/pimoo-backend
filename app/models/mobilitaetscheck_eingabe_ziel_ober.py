@@ -17,7 +17,7 @@ class MobilitaetscheckEingabeZielOber(Base):
         comment="ID der Eingabe des Mobilitätschecks für das Oberziel",
     )
 
-    mobilitaetscheck_eingabe_id: Mapped[int] = mapped_column(
+    eingabe_id: Mapped[int] = mapped_column(
         ForeignKey(
             "mobilitaetscheck_eingabe.id",
             ondelete="CASCADE",
@@ -25,26 +25,24 @@ class MobilitaetscheckEingabeZielOber(Base):
         nullable=False,
         comment="Eingabe ID des Mobilitätschecks, mit der das Oberziel verknüpft ist",
     )
-    mobilitaetscheck_eingabe: Mapped["MobilitaetscheckEingabe"] = relationship(
-        back_populates="objectives", lazy="selectin"
+    eingabe: Mapped["MobilitaetscheckEingabe"] = relationship(
+        back_populates="eingabe_ziel_ober", lazy="selectin"
     )
-    mobilitaetscheck_ziel_ober_id: Mapped[int] = mapped_column(
+    ziel_ober_id: Mapped[int] = mapped_column(
         ForeignKey("mobilitaetscheck_ziel_ober.id"),
         nullable=False,
         comment="ID des Leitziels, mit dem die Eingabe verknüpft ist",
     )
-    mobilitaetscheck_ziel_ober: Mapped["MobilitaetscheckZielOber"] = relationship(
-        lazy="selectin"
-    )
+    ziel_ober: Mapped["MobilitaetscheckZielOber"] = relationship(lazy="selectin")
     tangiert: Mapped[bool] = mapped_column(
         nullable=False, default=False, comment="Markiert, ob das Oberziel tangiert ist"
     )
-    mobilitaetscheck_eingabe_ziel_unter: Mapped[
-        Optional[List["MobilitaetscheckEingabeZielUnter"]]
-    ] = relationship(
-        back_populates="mobilitaetscheck_eingabe_ziel_ober",
-        cascade="all, delete",
-        lazy="selectin",
+    eingabe_ziel_unter: Mapped[Optional[List["MobilitaetscheckEingabeZielUnter"]]] = (
+        relationship(
+            back_populates="eingabe_ziel_ober",
+            cascade="all, delete",
+            lazy="selectin",
+        )
     )
 
 

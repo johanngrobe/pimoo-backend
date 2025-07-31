@@ -27,20 +27,28 @@ class KlimacheckEingabe(Base):
         unique=True,
         comment="Klimacheck ID",
     )
-    verwaltungsvorgang_nr: Mapped[str] = mapped_column(
-        nullable=False,
-        comment="Verwaltungsvorgangsnummer",
-    )
-    verwaltungsvorgang_datum: Mapped[date] = mapped_column(
-        nullable=False,
-        comment="Datum des Verwaltungsvorgangs",
-    )
     name: Mapped[str] = mapped_column(
-        nullable=False, comment="Name oder Titel des Klimachecks"
+        nullable=True, comment="Name der Klimacheck-Eingabe"
     )
-    klimarelevanz: Mapped[str] = mapped_column(
+    magistratsvorlage_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("magistratsvorlage.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="ID der zugehörigen Magistratsvorlage",
+    )
+    magistratsvorlage: Mapped[Optional["Magistratsvorlage"]] = relationship(
+        back_populates="klimachecks",
+        lazy="selectin",
+    )
+    klimarelevanz_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "klimacheck_klimarelevanz.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         comment="Einschätzung der Klimarelevanz des Projekts (z.B. hoch, mittel, niedrig).",
+    )
+    klimarelevanz: Mapped["KlimacheckKlimarelevanz"] = relationship(
+        lazy="selectin",
     )
     auswirkung_thg: Mapped[Optional[int]] = mapped_column(
         CheckConstraint("impact_ghg BETWEEN -3 AND 3"),
@@ -56,9 +64,16 @@ class KlimacheckEingabe(Base):
         nullable=True,
         comment="Kurzbeschreibung der Auswirkungen",
     )
-    auswirkung_dauer: Mapped[Optional[str]] = mapped_column(
+    auswirkung_dauer_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey(
+            "klimacheck_auswirkung_dauer.id",
+            ondelete="CASCADE",
+        ),
         nullable=True,
         comment="Kurzbeschreibung der Dauer der Auswirkungen",
+    )
+    auswirkung_dauer: Mapped[Optional["KlimacheckAuswirkungDauer"]] = relationship(
+        lazy="selectin",
     )
     alternativen: Mapped[Optional[str]] = mapped_column(
         nullable=True, comment="Description of alternative solutions or adaptations."
@@ -86,7 +101,7 @@ class KlimacheckEingabe(Base):
         comment="User ID vom Ersteller des Klimachecks",
     )
     autor: Mapped[Optional["User"]] = relationship(foreign_keys=[erstellt_von])
-    zuletzt_bearbeiter_von: Mapped[Optional[GUID]] = mapped_column(
+    zuletzt_bearbeitet_von: Mapped[Optional[GUID]] = mapped_column(
         ForeignKey(
             "user.id",
             ondelete="SET NULL",
@@ -95,7 +110,7 @@ class KlimacheckEingabe(Base):
         comment="User ID des zuletzt bearbeitenden Benutzers",
     )
     letzter_bearbeiter: Mapped[Optional["User"]] = relationship(
-        foreign_keys=[zuletzt_bearbeiter_von]
+        foreign_keys=[zuletzt_bearbeitet_von]
     )
     veroeffentlicht: Mapped[bool] = mapped_column(
         nullable=False,
@@ -107,4 +122,7 @@ class KlimacheckEingabe(Base):
 
 # Late imports
 from app.models.gemeinde import Gemeinde
+from app.models.klimacheck_auswirkung_dauer import KlimacheckAuswirkungDauer
+from app.models.klimacheck_klimarelevanz import KlimacheckKlimarelevanz
+from app.models.magistratsvorlage import Magistratsvorlage
 from app.models.user import User

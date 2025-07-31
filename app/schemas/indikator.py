@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, computed_field, ConfigDict, Field
 
 
 class IndikatorBase(BaseModel):
@@ -8,9 +8,13 @@ class IndikatorBase(BaseModel):
     Base schema for an Indikator, representing a data source with a label and optional URL.
     """
 
-    label: str = Field(..., description="The name or title of the Indikator.")
-    source_url: Optional[str] = Field(
+    name: str = Field(..., description="The name or title of the Indikator.")
+    quelle_url: Optional[str] = Field(
         None, description="The URL of the source for the Indikator data."
+    )
+    gemeindespezifisch: bool = Field(
+        False,
+        description="Gibt an, ob der Indikator mit anderen Gemeinden geteilt wird oder gemeindespezifisch ist",
     )
 
 
@@ -25,14 +29,6 @@ class IndikatorCreate(IndikatorBase):
     )
 
 
-class IndikatorID(BaseModel):
-    """
-    Schema for an Indikator reference by ID, used for linking or simple associations.
-    """
-
-    id: int = Field(..., description="Unique identifier for the Indikator.")
-
-
 class IndikatorUpdate(BaseModel):
     """
     Schema for updating an Indikator. All fields are optional for partial updates.
@@ -43,6 +39,10 @@ class IndikatorUpdate(BaseModel):
     )
     quelle_url: Optional[str] = Field(
         None, description="Updated URL of the source for the Indikator data."
+    )
+    gemeindespezifisch: Optional[bool] = Field(
+        None,
+        description="Updated status of whether the Indikator is shared with other municipalities or is municipality-specific.",
     )
     tag_ids: Optional[List[int]] = Field(
         None, description="Updated list of tag IDs associated with the Indikator."
@@ -76,6 +76,14 @@ class IndikatorRead(IndikatorBaseRead):
     tags: Optional[List["TagRead"]] = Field(
         default_factory=list, description="List of tags associated with the Indikator."
     )
+
+    @computed_field
+    @property
+    def tag_ids(self) -> List[int]:
+        """
+        Automatically computes the list of tag IDs from the tags.
+        """
+        return [tag.id for tag in self.tags or []]
 
 
 from app.schemas.tag import TagRead

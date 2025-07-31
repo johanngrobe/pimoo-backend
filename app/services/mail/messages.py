@@ -3,17 +3,16 @@ from fastapi_mail import MessageSchema, MessageType
 from app.core.config import settings
 from app.models.user import User
 from app.services.mail.config_mail import Mail
-from app.utils.options_util import USER_ROLES
 from app.utils.url_util import add_query_params
 
 
 async def send_welcome(user: User):
 
     user_dict = {
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "role": USER_ROLES[user.role],
-        "municipality": user.municipality.name,
+        "vorname": user.vorname,
+        "nachname": user.nachname,
+        "rolle": user.rolle.name,
+        "gemeinde": user.gemeinde.name,
     }
 
     message = MessageSchema(
@@ -23,21 +22,21 @@ async def send_welcome(user: User):
         subtype=MessageType.html,
     )
     try:
-        await Mail.send_message(message, template_name="welcome-user.html")
+        await Mail.send_message(message, template_name="account-registrieren.html")
     except:
         print("Error sending welcome email")
 
 
 async def send_verification(user: User, token: str):
     url = add_query_params(
-        f"{settings.VITE_FRONTEND_URL}/verify-account", {"token": token}
+        f"{settings.FRONTEND_HOST}/auth/account-bestaetigen", {"token": token}
     )
 
     user_dict = {
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "role": USER_ROLES[user.role],
-        "municipality": user.municipality.name,
+        "vorname": user.vorname,
+        "nachname": user.nachname,
+        "rolle": user.rolle.name,
+        "gemeinde": user.gemeinde.name,
         "url": url,
     }
 
@@ -48,16 +47,21 @@ async def send_verification(user: User, token: str):
         subtype=MessageType.html,
     )
 
-    await Mail.send_message(message, template_name="verify-account.html")
+    await Mail.send_message(message, template_name="account-bestaetigen.html")
 
 
 async def send_reset_password(user: User, token: str):
 
     url = add_query_params(
-        f"{settings.VITE_FRONTEND_URL}/reset-password", {"token": token}
+        f"{settings.FRONTEND_HOST}/auth/passwort-zuruecksetzen", {"token": token}
     )
 
-    user_dict = {"first_name": user.first_name, "last_name": user.last_name, "url": url}
+    user_dict = {
+        "vorname": user.vorname,
+        "nachname": user.nachname,
+        "rolle": user.rolle.name,
+        "url": url,
+    }
 
     message = MessageSchema(
         subject="Passwort zurücksetzen",
@@ -66,4 +70,4 @@ async def send_reset_password(user: User, token: str):
         subtype=MessageType.html,
     )
 
-    await Mail.send_message(message, template_name="reset-password.html")
+    await Mail.send_message(message, template_name="passwort-zuruecksetzen.html")

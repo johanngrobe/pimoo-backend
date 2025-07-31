@@ -17,8 +17,12 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     nachname: Mapped[str] = mapped_column(
         nullable=False, comment="Nachname des Benutzers"
     )
-    rolle: Mapped[str] = mapped_column(nullable=False, comment="Rolle des Benutzers")
-
+    rolle_id: Mapped[int] = mapped_column(
+        ForeignKey("user_rolle.id", ondelete="SET NULL"),
+        nullable=False,
+        comment="Rolle ID des Benutzers",
+    )
+    rolle: Mapped["UserRolle"] = relationship(back_populates="users", lazy="selectin")
     gemeinde_id: Mapped[int] = mapped_column(
         ForeignKey("gemeinde.id", ondelete="CASCADE"),
         nullable=False,
@@ -33,3 +37,4 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 
 
 from app.models.gemeinde import Gemeinde
+from app.models.user_rolle import UserRolle

@@ -14,6 +14,11 @@ class Tag(Base):
         primary_key=True, index=True, nullable=False, unique=True, comment="Tag ID"
     )
     name: Mapped[str] = mapped_column(nullable=False, comment="Name des Tags")
+    gemeindespezifisch: Mapped[bool] = mapped_column(
+        nullable=False,
+        default=False,
+        comment="Gibt an, ob der Tag mit anderen Gemeinden geteilt wird oder gemeindespezifisch ist",
+    )
     gemeinde_id: Mapped[int] = mapped_column(
         ForeignKey("gemeinde.id", ondelete="CASCADE"),
         nullable=False,

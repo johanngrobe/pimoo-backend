@@ -49,9 +49,9 @@ async def get_mobility_result(id: int, db: AsyncSession = Depends(get_async_sess
     dependencies=[Depends(current_active_user)],
 )
 async def create_mobility_result(
-    mobility_result: CreateSchema, db: AsyncSession = Depends(get_async_session)
+    obj_in: CreateSchema, db: AsyncSession = Depends(get_async_session)
 ):
-    return await crud.create(db, mobility_result)
+    return await crud.create(db, obj_in)
 
 
 @router.patch(

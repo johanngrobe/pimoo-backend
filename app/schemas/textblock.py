@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, computed_field, ConfigDict
 
 
 class TextblockBase(BaseModel):
@@ -9,6 +9,10 @@ class TextblockBase(BaseModel):
     """
 
     name: str = Field(..., description="The label or title for the text block.")
+    gemeindespezifisch: bool = Field(
+        False,
+        description="Gibt an, ob der Textblock mit anderen Gemeinden geteilt wird oder gemeindespezifisch ist",
+    )
 
 
 class TextblockCreate(TextblockBase):
@@ -27,6 +31,10 @@ class TextblockUpdate(BaseModel):
     """
 
     name: Optional[str] = Field(None, description="Updated label for the text block.")
+    gemeindespezifisch: Optional[bool] = Field(
+        False,
+        description="Gibt an, ob der Tag mit anderen Gemeinden geteilt wird oder gemeindespezifisch ist",
+    )
     tag_ids: Optional[List[int]] = Field(
         None, description="Updated list of associated tag IDs."
     )
@@ -53,6 +61,14 @@ class TextblockRead(TextblockBase):
     letzter_bearbeiter: Optional["UserRead"] = Field(
         None, description="User who last edited the text block."
     )
+
+    @computed_field
+    @property
+    def tag_ids(self) -> List[int]:
+        """
+        Automatically computes the list of tag IDs from the tags.
+        """
+        return [tag.id for tag in self.tags or []]
 
 
 # Late imports for forward references

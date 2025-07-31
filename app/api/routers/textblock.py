@@ -26,8 +26,10 @@ async def get_all_text_blocks(
     user: User = Depends(current_active_user),
 ):
     sort_params = [("name", "asc")]
-    return await crud.get_all(
-        db=db, gemeinde_id=user.gemeinde_id, sort_params=sort_params
+    return await crud.get_by_or_keys(
+        db,
+        or_keys=[{"gemeinde_id": user.gemeinde_id}, {"gemeindespezifisch": False}],
+        sort_params=sort_params,
     )
 
 

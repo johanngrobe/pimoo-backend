@@ -4,7 +4,6 @@ from os import path
 from app.models.mobilitaetscheck_eingabe import MobilitaetscheckEingabe
 from app.services.pdf.base_pdf import BasePDF
 from app.utils.pdf_util import calculate_average_impact, get_display_impact
-from app.utils.label_util import label_mobility_spatial_impact
 
 
 class MobilitaetscheckPDF(BasePDF):
@@ -38,14 +37,18 @@ class MobilitaetscheckPDF(BasePDF):
 
         self.cell(52, 5, txt="**Magistratsvorlagennummer:**", markdown=True)
         self.cell(
-            0, 5, txt=f"{eingabe.verwaltungsvorgang_nr}", new_x="LMARGIN", new_y="NEXT"
+            0,
+            5,
+            txt=f"{eingabe.magistratsvorlage.verwaltungsvorgang_nr}",
+            new_x="LMARGIN",
+            new_y="NEXT",
         )
         self.ln(2)
         self.cell(52, 5, txt="**Datum der Magistratssitzung:**", markdown=True)
         self.cell(
             0,
             5,
-            txt=f"{eingabe.verwaltungsvorgang_datum.strftime('%d.%m.%Y')}",
+            txt=f"{eingabe.magistratsvorlage.verwaltungsvorgang_datum.strftime('%d.%m.%Y')}",
             new_x="LMARGIN",
             new_y="NEXT",
         )
@@ -55,7 +58,11 @@ class MobilitaetscheckPDF(BasePDF):
         self.ln(2)
         self.cell(35, 5, txt="**Beschreibung:**", markdown=True)
         self.multi_cell(
-            0, 5, txt=f"{eingabe.beschreibung}", new_x="LMARGIN", new_y="NEXT"
+            0,
+            5,
+            txt=f"{eingabe.magistratsvorlage.beschreibung}",
+            new_x="LMARGIN",
+            new_y="NEXT",
         )
         self.ln(2)
         self.cell(35, 5, txt="**Sachbearbeitung:**", markdown=True)
@@ -163,9 +170,7 @@ class MobilitaetscheckPDF(BasePDF):
 
             self.set_line_width(0.1)
 
-            for index, unterziel in enumerate(
-                eingabe.eingabe_ziel_ober.eingabe_ziel_unter
-            ):
+            for index, unterziel in enumerate(oberziel.eingabe_ziel_unter):
 
                 if unterziel.tangiert:
                     if index == 0:
@@ -220,7 +225,7 @@ class MobilitaetscheckPDF(BasePDF):
                     self.multi_cell(
                         35,
                         10,
-                        txt=f"**Räumlich:**\n{label_mobility_spatial_impact(unterziel.auswirkung_raeumlich)}",
+                        txt=f"**Räumlich:**\n{unterziel.auswirkung_raeumlich.name}",
                         markdown=True,
                         max_line_height=5,
                         new_x="LMARGIN",

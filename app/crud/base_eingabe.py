@@ -4,7 +4,7 @@ from sqlalchemy import inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
-from app.services.pdf import BasePDF
+from app.services.pdf.base_pdf import BasePDF
 
 ModelType = TypeVar("ModelType")
 CreateSchemaType = TypeVar("CreateSchemaType")

@@ -11,7 +11,7 @@ from typing import (
     Union,
 )
 
-from sqlalchemy import desc, asc
+from sqlalchemy import desc, asc, or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -238,12 +238,72 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         instances = result.scalars().all()
 
         if not instances:
-            raise NotFoundError(self.model.__name__, key, value)
+            raise NotFoundError(resource_type=self.model.__name__, resource_id=key)
 
         #     # Apply recursive in-memory sorting for nested attributes
         # instances = self.sort(instances, sort_params)
 
         return instances
+
+    async def get_by_or_keys(
+        self,
+        db: AsyncSession,
+        *,
+        or_keys: List[Dict[str, Any]],
+        extra_fields: List[Any] = [],
+        sort_params: List[
+            Tuple[str, Union[str, Tuple[str, Union[str, Tuple[str, str]]]]]
+        ] = [],
+    ) -> List[ModelType]:
+        """
+        Retrieves records that match at least one of the key-value conditions provided.
+
+        Args:
+            db (AsyncSession): The database session.
+            or_keys (List[Dict[str, Any]]): A list of dictionaries, each representing a set of conditions to be OR'ed together.
+            extra_fields (Optional[List[Any]]): SQLAlchemy query options like joinedload.
+            sort_params (Optional[List[Tuple]]): Sort parameters.
+
+        Returns:
+            List[ModelType]: List of model instances matching any of the filters.
+        """
+        statement = select(self.model)
+        alias_map = {}
+        or_clauses = []
+
+        for filter_group in or_keys:
+            for key, value in filter_group.items():
+                if value is None:
+                    continue
+
+                nested_keys = key.split(".")
+                if len(nested_keys) > 1:
+                    current_model = self.model
+                    for i, attr in enumerate(nested_keys):
+                        if i < len(nested_keys) - 1:
+                            if attr not in alias_map:
+                                relationship_attr = getattr(current_model, attr)
+                                alias = aliased(
+                                    relationship_attr.property.mapper.class_
+                                )
+                                alias_map[attr] = alias
+                                statement = statement.join(alias, relationship_attr)
+                            current_model = alias_map[attr]
+                        else:
+                            or_clauses.append(getattr(current_model, attr) == value)
+                else:
+                    or_clauses.append(getattr(self.model, key) == value)
+
+        if or_clauses:
+            statement = statement.where(or_(*or_clauses))
+
+        # Apply sorting
+        statement = self.apply_sorting(statement, self.model, sort_params)
+
+        # Apply extra loading fields (e.g., eager loading)
+        statement = self.extend_statement(statement, extra_fields=extra_fields)
+        result = await db.execute(statement)
+        return result.scalars().all()
 
     async def get_by_multi_keys(
         self,

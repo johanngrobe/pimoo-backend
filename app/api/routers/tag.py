@@ -21,7 +21,12 @@ async def get_tags(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    return await crud.get_all(db, user.gemeinde_id)
+    sort_params = [("name", "asc")]
+    return await crud.get_by_or_keys(
+        db,
+        or_keys=[{"gemeinde_id": user.gemeinde_id}, {"gemeindespezifisch": False}],
+        sort_params=sort_params,
+    )
 
 
 @router.get("/{id}", response_model=ReadSchema)

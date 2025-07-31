@@ -2,11 +2,8 @@ from typing import Optional
 
 from datetime import datetime, date
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
-from app.utils.enum_util import ImpactEnum, ImpactDurationEnum
 from app.utils.label_util import (
-    label_climate_impact,
-    label_climate_impact_ghg,
-    label_climate_impact_duration,
+    label_klimacheck_auswirkung,
 )
 from app.schemas.user import UserRead
 
@@ -17,35 +14,30 @@ class KlimacheckEingabeBase(BaseModel):
     Holds the primary fields related to the climate submission data.
     """
 
-    verwaltungsvorgang_nr: str = Field(
-        ..., description="Internal tracking number assigned by the administration."
+    name: Optional[str] = Field(None, description="Name of the climate submission.")
+    magistratsvorlage_id: Optional[int] = Field(
+        None, description="ID of the associated magistrate submission."
     )
-    verwaltungsvorgang_datum: date = Field(
-        ..., description="Date the submission was registered by the administration."
-    )
-    name: str = Field(
-        ..., description="Short descriptive title or label for the submission."
-    )
-    klimarelevanz: ImpactEnum = Field(
+    klimarelevanz_id: int = Field(
         ...,
         description="Estimated impact on climate (e.g., positive, negative, no effect).",
     )
     auswirkung_thg: Optional[int] = Field(
         None,
-        ge=-3,
-        le=3,
+        ge=-2,
+        le=2,
         description="Estimated greenhouse gas impact, ranging from -3 to 3.",
     )
     auswirkung_klimaanpassung: Optional[int] = Field(
         None,
-        ge=-3,
-        le=3,
+        ge=-2,
+        le=2,
         description="Level of impact on climate adaptation, ranging from -3 to 3.",
     )
     auswirkung_beschreibung: Optional[str] = Field(
         None, description="Detailed description of the anticipated climate impact."
     )
-    auswirkung_dauer: Optional[ImpactDurationEnum] = Field(
+    auswirkung_dauer_id: Optional[int] = Field(
         None, description="Duration of the impact (short, medium, long)."
     )
     alternativen: Optional[str] = Field(
@@ -72,16 +64,10 @@ class KlimacheckEingabeUpdate(BaseModel):
     All fields are optional to allow partial updates.
     """
 
-    verwaltungsvorgang_nr: Optional[str] = Field(
-        None, description="Internal tracking number assigned by the administration."
-    )
-    verwaltungsvorgang_datum: Optional[date] = Field(
-        None, description="Date the submission was registered by the administration."
-    )
     name: Optional[str] = Field(
-        None, description="Short descriptive title or label for the submission."
+        None, description="Updated name of the climate submission."
     )
-    klimarelevanz: Optional[ImpactEnum] = Field(
+    klimarelevanz_id: Optional[int] = Field(
         None,
         description="Estimated impact on climate (e.g., positive, negative, no effect).",
     )
@@ -100,7 +86,7 @@ class KlimacheckEingabeUpdate(BaseModel):
     auswirkung_beschreibung: Optional[str] = Field(
         None, description="Detailed description of the anticipated climate impact."
     )
-    auswirkung_dauer: Optional[ImpactDurationEnum] = Field(
+    auswirkung_dauer_id: Optional[int] = Field(
         None, description="Duration of the impact (short, medium, long)."
     )
     alternativen: Optional[str] = Field(
@@ -112,7 +98,7 @@ class KlimacheckEingabeUpdate(BaseModel):
     )
 
 
-class KlimacheckEingabeRead(KlimacheckEingabeBase):
+class KlimacheckEingabeBaseRead(KlimacheckEingabeBase):
     """
     Schema for returning a KlimacheckEingabe with extra metadata fields.
     Includes fields for author and editor details as well as translated labels.
@@ -133,7 +119,7 @@ class KlimacheckEingabeRead(KlimacheckEingabeBase):
     )
 
     # Computed labels for user-friendly display
-    klimarelevanz_label: Optional[str] = Field(
+    klimarelevanz: Optional["KlimacheckKlimarelevanzRead"] = Field(
         None, description="Human-readable label for the climate impact."
     )
     auswirkung_thg_label: Optional[str] = Field(
@@ -142,30 +128,26 @@ class KlimacheckEingabeRead(KlimacheckEingabeBase):
     auswirkung_klimaanpassung_label: Optional[str] = Field(
         None, description="Human-readable label for climate adaptation impact."
     )
-    auswirkung_dauer_label: Optional[str] = Field(
+    auswirkung_dauer: Optional["KlimacheckAuswirkungDauerRead"] = Field(
         None, description="Human-readable label for the duration of impact."
     )
-
-    # Serializer methods to add human-readable labels
-    @field_serializer("klimarelevanz_label", when_used="json")
-    def serialize_impact_label(self, _):
-        """Provides a user-friendly label for the climate impact."""
-        return label_climate_impact(self.klimarelevanz)
 
     @field_serializer("auswirkung_thg_label", when_used="json")
     def serialize_impact_ghg_label(self, _):
         """Provides a user-friendly label for greenhouse gas impact."""
-        return label_climate_impact_ghg(self.auswirkung_thg)
+        return label_klimacheck_auswirkung(self.auswirkung_thg)
 
     @field_serializer("auswirkung_klimaanpassung_label", when_used="json")
     def serialize_impact_adaption_label(self, _):
         """Provides a user-friendly label for climate adaptation impact."""
-        return label_climate_impact_ghg(self.auswirkung_klimaanpassung)
+        return label_klimacheck_auswirkung(self.auswirkung_klimaanpassung)
 
-    @field_serializer("auswirkung_dauer_label", when_used="json")
-    def serialize_impact_duration_label(self, _):
-        """Provides a user-friendly label for the duration of impact."""
-        return label_climate_impact_duration(self.auswirkung_dauer)
+
+class KlimacheckEingabeRead(KlimacheckEingabeBaseRead):
+
+    magistratsvorlage: Optional["MagistratsvorlageBaseRead"] = Field(
+        None, description="Associated magistrate submission details."
+    )
 
 
 class KlimacheckEingabeFilter(BaseModel):
@@ -182,3 +164,8 @@ class KlimacheckEingabeFilter(BaseModel):
     user_rolle: Optional[bool] = Field(
         None, description="Filter submissions based on the user's role."
     )
+
+
+from app.schemas.klimacheck_auswirkung_dauer import KlimacheckAuswirkungDauerRead
+from app.schemas.klimacheck_klimarelevanz import KlimacheckKlimarelevanzRead
+from app.schemas.magistratsvorlage import MagistratsvorlageBaseRead

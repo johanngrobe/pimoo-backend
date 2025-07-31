@@ -8,7 +8,11 @@ class TagBase(BaseModel):
     Base schema for a tag, containing the label.
     """
 
-    name: str = Field(..., description="The descriptive label for the tag.")
+    name: str = Field(..., description="Name des Tags")
+    gemeindespezifisch: bool = Field(
+        False,
+        description="Gibt an, ob der Tag mit anderen Gemeinden geteilt wird oder gemeindespezifisch ist",
+    )
 
 
 class TagCreate(TagBase):
@@ -24,7 +28,10 @@ class TagUpdate(BaseModel):
     Schema for updating an existing tag, allowing partial updates.
     """
 
-    name: Optional[str] = Field(None, description="Updated label for the tag.")
+    name: Optional[str] = Field(None, description="Neue Name des Tags")
+    gemeindespezifisch: Optional[bool] = Field(
+        None, description="Neuer Status der Gemeindespezifität des Tags"
+    )
 
 
 class TagRead(TagBase):

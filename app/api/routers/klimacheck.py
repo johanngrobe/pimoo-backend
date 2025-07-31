@@ -1,13 +1,13 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Response
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.klimacheck_eingabe import crud_klimacheck_eingabe as crud
 from app.core.deps import current_active_user, get_async_session
 from app.models.user import User
-from app.schemas.klimacheckEingabe import (
+from app.schemas.klimacheck_eingabe import (
     KlimacheckEingabeCreate as CreateSchema,
     KlimacheckEingabeUpdate as UpdateSchema,
     KlimacheckEingabeRead as ReadSchema,
@@ -55,6 +55,31 @@ async def filter_climate_submissions(
     sort_params = [("erstellt_am", "desc")]
 
     return await crud.get_by_multi_keys(db=db, keys=keys, sort_params=sort_params)
+
+
+@router.get(
+    "/magistratsvorlage/{magistratsvorlage_id}",
+    response_model=List[ReadSchema],
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(current_active_user)],
+)
+async def get_klimacheck(
+    magistratsvorlage_id: int,
+    db: AsyncSession = Depends(get_async_session),
+):
+    sort_params = [("erstellt_am", "desc")]
+
+    instances = await crud.get_by_key(
+        db=db,
+        key="magistratsvorlage_id",
+        value=magistratsvorlage_id,
+        sort_params=sort_params,
+    )
+
+    if not instances:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    return instances
 
 
 @router.get("/{id}", response_model=ReadSchema)

@@ -19,8 +19,12 @@ class Gemeinde(Base):
         nullable=False, comment="Name der Gemeinde oder Stadt"
     )
     users: Mapped[Optional[List["User"]]] = relationship(
-        back_populates="municipality", cascade="all, delete", lazy="selectin"
+        back_populates="gemeinde", cascade="all, delete", lazy="selectin"
+    )
+    gebiete: Mapped[Optional[List["GemeindeGebiet"]]] = relationship(
+        back_populates="gemeinde", cascade="all, delete", lazy="selectin"
     )
 
 
 from app.models.user import User
+from app.models.gemeinde_gebiet import GemeindeGebiet

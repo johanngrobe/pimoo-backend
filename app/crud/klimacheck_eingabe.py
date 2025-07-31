@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base_eingabe import CRUDEingabe
-from app.models.klimacheckEingabe import KlimacheckEingabe as Model
+from app.models.klimacheck_eingabe import KlimacheckEingabe as Model
 from app.models.user import User
-from app.schemas.klimacheckEingabe import (
+from app.schemas.klimacheck_eingabe import (
     KlimacheckEingabeCreate as CreateSchema,
     KlimacheckEingabeUpdate as UpdateSchema,
 )

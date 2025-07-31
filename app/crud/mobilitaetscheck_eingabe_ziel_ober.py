@@ -1,6 +1,6 @@
 from app.crud.base import CRUDBase
 from app.models.mobilitaetscheck_eingabe_ziel_ober import (
-    MobilitaetscheckZielOber as Model,
+    MobilitaetscheckEingabeZielOber as Model,
 )
 from app.schemas.mobilitaetscheck_eingabe_ziel_ober import (
     MobilitaetscheckEingabeZielOberCreate as CreateSchema,

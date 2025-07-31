@@ -7,6 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import text
 
 from app.core.db import Base
+from app.models.assoziation_mobilitaetscheckEingabe_user import (
+    mobilitaetscheckEingabe_user_assoziation,
+)
 
 
 class MobilitaetscheckEingabe(Base):
@@ -19,22 +22,20 @@ class MobilitaetscheckEingabe(Base):
         unique=True,
         comment="ID der Mobilitätscheck-Eingabe",
     )
-    verwaltungsvorgang_nr: Mapped[str] = mapped_column(
-        nullable=False,
-        comment="Verwaltungsvorgangsnummer",
-    )
-    verwaltungsvorgang_datum: Mapped[date] = mapped_column(
-        nullable=False,
-        comment="Datum des Verwaltungsvorgangs",
-    )
     name: Mapped[str] = mapped_column(
-        nullable=False, comment="Name oder Titel der Mobilitätschecks"
-    )
-    beschreibung: Mapped[str] = mapped_column(
-        nullable=False, comment="Beschreibung der Mobilitätschecks"
+        nullable=True, comment="Name der Mobilitätscheck-Eingabe"
     )
     erstellt_am: Mapped[datetime] = mapped_column(
         nullable=False, server_default=text("now()"), comment="Zeitpunkt der Erstellung"
+    )
+    magistratsvorlage_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("magistratsvorlage.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="ID der zugehörigen Magistratsvorlage",
+    )
+    magistratsvorlage: Mapped[Optional["Magistratsvorlage"]] = relationship(
+        back_populates="mobilitaetschecks",
+        lazy="selectin",
     )
 
     eingabe_ziel_ober: Mapped[Optional[List["MobilitaetscheckEingabeZielOber"]]] = (
@@ -65,6 +66,11 @@ class MobilitaetscheckEingabe(Base):
     letzter_bearbeiter: Mapped["User"] = relationship(
         foreign_keys=[zuletzt_bearbeitet_von], lazy="joined"
     )
+    user: Mapped[Optional[List["User"]]] = relationship(
+        secondary=mobilitaetscheckEingabe_user_assoziation,
+        passive_deletes=True,
+        lazy="selectin",
+    )
     veroeffentlicht: Mapped[bool] = mapped_column(
         nullable=False,
         default=False,
@@ -77,4 +83,5 @@ from app.models.mobilitaetscheck_eingabe_ziel_ober import (
     MobilitaetscheckEingabeZielOber,
 )
 from app.models.gemeinde import Gemeinde
+from app.models.magistratsvorlage import Magistratsvorlage
 from app.models.user import User

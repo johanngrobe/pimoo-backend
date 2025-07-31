@@ -12,7 +12,7 @@ from app.schemas.mobilitaetscheck_eingabe_ziel_unter import (
 
 router = APIRouter()
 
-association_fields = ({"indikator_ids": (Indikator, "indikators")},)
+association_fields = {"indikator_ids": (Indikator, "indikatoren")}
 
 
 @router.get(

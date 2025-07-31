@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Response
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +14,7 @@ from app.schemas.mobilitaetscheck_eingabe import (
     MobilitaetscheckEingabeFilter as FilterSchema,
 )
 from app.utils.auth_util import check_user_authorization
+from app.services.pdf.mobilitaetscheck_pdf import MobilitaetscheckPDF
 
 router = APIRouter()
 
@@ -64,6 +65,31 @@ async def filter_mobility_submissions(
     return await crud.get_by_multi_keys(db=db, keys=keys, sort_params=sort_params)
 
 
+@router.get(
+    "/magistratsvorlage/{magistratsvorlage_id}",
+    response_model=List[ReadSchema],
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(current_active_user)],
+)
+async def get_mobility_submission(
+    magistratsvorlage_id: int,
+    db: AsyncSession = Depends(get_async_session),
+):
+    sort_params = [("erstellt_am", "desc")]
+
+    instances = await crud.get_by_key(
+        db=db,
+        key="magistratsvorlage_id",
+        value=magistratsvorlage_id,
+        sort_params=sort_params,
+    )
+
+    if not instances:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    return instances
+
+
 @router.get("/{id}", response_model=ReadSchema, status_code=status.HTTP_200_OK)
 async def get_mobility_submission(
     id: int,
@@ -98,11 +124,15 @@ async def export_mobility_submission(
 ):
     instance = await crud.get(db, id)
     check_user_authorization(user, instance.gemeinde_id)
-    export = await crud.export(db, id)
+    pdf_export = await crud.export(db, id)
+    # validated_instance = ReadSchema.model_validate(instance)
+    # print(validated_instance.model_dump())
+    # pdf = MobilitaetscheckPDF(orientation="P", unit="mm", format="A4")
+    # pdf_export = pdf.export(validated_instance.model_dump())
 
     filename = f"mobilitaetscheck_{id}.pdf"
     headers = {"Content-Disposition": f"attachment; filename={filename}"}
-    return StreamingResponse(export, media_type="application/pdf", headers=headers)
+    return StreamingResponse(pdf_export, media_type="application/pdf", headers=headers)
 
 
 @router.post("", response_model=ReadSchema, status_code=status.HTTP_201_CREATED)

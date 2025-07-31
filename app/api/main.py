@@ -4,6 +4,7 @@ from app.core.deps import auth_backend, fastapi_users
 from app.api.routers import (
     indikator,
     klimacheck,
+    magistratsvorlage,
     mobilitaetscheck_eingabe,
     mobilitaetscheck_eingabe_ziel_ober,
     mobilitaetscheck_eingabe_ziel_unter,
@@ -12,6 +13,7 @@ from app.api.routers import (
     option,
     tag,
     textblock,
+    user,
 )
 from app.schemas.user import UserRead, UserCreate, UserUpdate
 
@@ -35,6 +37,16 @@ router.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
     prefix="/users",
     tags=["Users"],
+)
+router.include_router(
+    user.router,
+    prefix="/users",
+    tags=["Users"],
+)
+router.include_router(
+    magistratsvorlage.router,
+    prefix="/magistratsvorlage",
+    tags=["Magistratsvorlage"],
 )
 router.include_router(
     mobilitaetscheck_eingabe.router,

@@ -1,11 +1,11 @@
 from io import BytesIO
 
-from app.models.klimacheckEingabe import KlimacheckEingabe
+from app.models.klimacheck_eingabe import KlimacheckEingabe
 from app.services.pdf.base_pdf import BasePDF
 from app.utils.label_util import (
-    label_climate_impact,
-    label_climate_impact_duration,
-    label_climate_impact_ghg,
+    label_klimacheck_klimarelevanz,
+    label_klimacheck_auswirkung,
+    label_klimacheck_auswirkung_dauer,
 )
 
 
@@ -36,7 +36,7 @@ class KlimacheckPDF(BasePDF):
         self.cell(
             0,
             5,
-            txt=f"{eingabe.verwaltungsvorgang_nr}",
+            txt=f"{eingabe.magistratsvorlage.verwaltungsvorgang_nr}",
             new_x="LMARGIN",
             new_y="NEXT",
         )
@@ -44,7 +44,7 @@ class KlimacheckPDF(BasePDF):
         self.cell(
             0,
             5,
-            txt=f"{eingabe.verwaltungsvorgang_datum.strftime('%d.%m.%Y')}",
+            txt=f"{eingabe.magistratsvorlage.verwaltungsvorgang_datum.strftime('%d.%m.%Y')}",
             new_x="LMARGIN",
             new_y="NEXT",
         )
@@ -54,16 +54,17 @@ class KlimacheckPDF(BasePDF):
         self.cell(0, 3, new_x="LMARGIN", new_y="NEXT")
 
         self.cell(60, 5, txt="**Einschätzung der Klimarelevanz:**", markdown=True)
-        klimarelevanz = label_climate_impact(eingabe.klimarelevanz)
-        self.cell(0, 5, txt=f"{klimarelevanz}", new_x="LMARGIN", new_y="NEXT")
+        self.cell(
+            0, 5, txt=f"{eingabe.klimarelevanz.name}", new_x="LMARGIN", new_y="NEXT"
+        )
 
-        if eingabe.klimarelevanz != "no_effect":
+        if eingabe.klimarelevanz_id != 3:
             self.cell(60, 5, txt="**Auswirkung auf Treibhausgase:**", markdown=True)
-            auswirkung_thg = label_climate_impact_ghg(eingabe.auswirkung_thg)
+            auswirkung_thg = label_klimacheck_auswirkung(eingabe.auswirkung_thg)
             self.cell(0, 5, txt=f"{auswirkung_thg}", new_x="LMARGIN", new_y="NEXT")
 
             self.cell(60, 5, txt="**Anpassung an den Klimawandel:**", markdown=True)
-            auswirkung_klimaanpassung = label_climate_impact(
+            auswirkung_klimaanpassung = label_klimacheck_auswirkung(
                 eingabe.auswirkung_klimaanpassung
             )
             self.cell(
@@ -80,8 +81,13 @@ class KlimacheckPDF(BasePDF):
             )
 
             self.cell(60, 5, txt="**Dauer der Auswirkung:**", markdown=True)
-            auswirkung_dauer = label_climate_impact_duration(eingabe.auswirkung_dauer)
-            self.cell(0, 5, txt=f"{auswirkung_dauer}", new_x="LMARGIN", new_y="NEXT")
+            self.cell(
+                0,
+                5,
+                txt=f"{eingabe.auswirkung_dauer.alt_name}",
+                new_x="LMARGIN",
+                new_y="NEXT",
+            )
 
             self.cell(60, 5, txt="**Alternativmaßnahme:**", markdown=True)
             self.multi_cell(

@@ -25,6 +25,11 @@ class Indikator(Base):
     tags: Mapped[Optional[List["Tag"]]] = relationship(
         secondary=indikator_tag_assoziation, lazy="selectin"
     )
+    gemeindespezifisch: Mapped[bool] = mapped_column(
+        nullable=False,
+        default=False,
+        comment="Gibt an, ob der Indikator mit anderen Gemeinden geteilt wird oder gemeindespezifisch ist",
+    )
     gemeinde_id: Mapped[int] = mapped_column(
         ForeignKey(
             "gemeinde.id",

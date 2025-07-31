@@ -17,8 +17,3 @@ class SpatialImpactEnum(str, Enum):
     lokal = "lokal"
     quartiersweit = "quartiersweit"
     stadtweit = "stadtweit"
-
-
-class RoleEnum(str, Enum):
-    verwaltung = "verwaltung"
-    politik = "politik"

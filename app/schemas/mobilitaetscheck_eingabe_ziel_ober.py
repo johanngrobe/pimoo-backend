@@ -54,11 +54,11 @@ class MobilitaetscheckEingabeZielOberRead(MobilitaetscheckEingabeZielOberBase):
     @field_serializer("eingabe_ziel_unter")
     def sort_sub_objectives(
         self, eingabe_ziel_unter: List["MobilitaetscheckEingabeZielUnterRead"]
-    ) -> List["MobilitaetscheckZielOberBaseRead"]:
+    ) -> List["MobilitaetscheckEingabeZielUnterRead"]:
         """
         Sorts the list of sub-objectives by the 'no' attribute of each sub-objective.
         """
-        return sorted(eingabe_ziel_unter, key=lambda x: x.eingabe_ziel_unter.nr)
+        return sorted(eingabe_ziel_unter, key=lambda x: x.ziel_unter.nr)
 
 
 # Late imports for forward references

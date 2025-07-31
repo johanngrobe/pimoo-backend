@@ -21,8 +21,10 @@ async def get_indicators(
 ):
 
     sort_params = [("name", "asc")]
-    return await crud.get_all(
-        db=db, municipality_id=user.gemeinde_id, sort_params=sort_params
+    return await crud.get_by_or_keys(
+        db,
+        or_keys=[{"gemeinde_id": user.gemeinde_id}, {"gemeindespezifisch": False}],
+        sort_params=sort_params,
     )
 
 
