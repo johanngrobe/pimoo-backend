@@ -41,6 +41,7 @@ class MobilitaetscheckEingabe(Base):
     eingabe_ziel_ober: Mapped[Optional[List["MobilitaetscheckEingabeZielOber"]]] = (
         relationship(
             back_populates="eingabe",
+            order_by=lambda: MobilitaetscheckEingabeZielOber.ziel_ober_nr,
             cascade="all, delete-orphan",
             passive_deletes=True,
             lazy="selectin",

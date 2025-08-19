@@ -1,8 +1,11 @@
 from typing import List, Optional, Literal
 
 from sqlalchemy import CheckConstraint, ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, mapped_column, Mapped
+from sqlalchemy.sql import select
 from app.core.db import Base
+
 
 from app.models.assoziation_mobilitaetscheckEingabeZielUnter_indikator import (
     mobilitaetscheckEingabeZielUnter_indikator_assoziation,
@@ -34,6 +37,23 @@ class MobilitaetscheckEingabeZielUnter(Base):
         comment="ID des Mobilitätscheck Unterziels, mit dem die Eingabe verknüpft ist",
     )
     ziel_unter: Mapped["MobilitaetscheckZielUnter"] = relationship(lazy="selectin")
+
+    @hybrid_property
+    def ziel_unter_nr(self):
+        return self.ziel_unter.nr if self.ziel_unter else None
+
+    @ziel_unter_nr.expression
+    def ziel_unter_nr(cls):
+        # local import avoids early reference / circular import
+        from app.models.mobilitaetscheck_ziel_unter import MobilitaetscheckZielUnter
+
+        return (
+            select(MobilitaetscheckZielUnter.nr)
+            .where(MobilitaetscheckZielUnter.id == cls.ziel_unter_id)
+            .correlate(cls)
+            .scalar_subquery()
+        )
+
     tangiert: Mapped[bool] = mapped_column(
         nullable=False, default=False, comment="Markiert, ob das Unterziel tangiert ist"
     )

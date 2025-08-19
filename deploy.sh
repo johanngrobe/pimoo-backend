@@ -6,11 +6,11 @@ git pull
 
 # Step 2: Activate virtual environment
 echo "Activating virtual environment..."
-source venv/bin/activate
+source .venv/bin/activate
 
 # Step 3: Install dependencies
 echo "Installing dependencies..."
-pip install -r requirements.txt
+uv sync 
 
 # Step 4: Run database migrations
 echo "Running Alembic migrations..."

@@ -1,7 +1,10 @@
 from typing import List, Optional
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, column_property
+from sqlalchemy.sql import select
+from sqlalchemy.ext.hybrid import hybrid_property
+
 
 from app.core.db import Base
 
@@ -34,12 +37,30 @@ class MobilitaetscheckEingabeZielOber(Base):
         comment="ID des Leitziels, mit dem die Eingabe verknüpft ist",
     )
     ziel_ober: Mapped["MobilitaetscheckZielOber"] = relationship(lazy="selectin")
+
+    @hybrid_property
+    def ziel_ober_nr(self):
+        return self.ziel_ober.nr if self.ziel_ober else None
+
+    @ziel_ober_nr.expression
+    def ziel_ober_nr(cls):
+        # local import avoids early reference / circular import
+        from app.models.mobilitaetscheck_ziel_ober import MobilitaetscheckZielOber
+
+        return (
+            select(MobilitaetscheckZielOber.nr)
+            .where(MobilitaetscheckZielOber.id == cls.ziel_ober_id)
+            .correlate(cls)
+            .scalar_subquery()
+        )
+
     tangiert: Mapped[bool] = mapped_column(
         nullable=False, default=False, comment="Markiert, ob das Oberziel tangiert ist"
     )
     eingabe_ziel_unter: Mapped[Optional[List["MobilitaetscheckEingabeZielUnter"]]] = (
         relationship(
             back_populates="eingabe_ziel_ober",
+            order_by=lambda: MobilitaetscheckEingabeZielUnter.ziel_unter_nr,
             cascade="all, delete",
             lazy="selectin",
         )
