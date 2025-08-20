@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.core.deps import auth_backend, fastapi_users
 from app.api.routers import (
+    gemeinde_gebiet,
     indikator,
     klimacheck,
     magistratsvorlage,
@@ -67,6 +68,11 @@ router.include_router(
     mobilitaetscheck_eingabe_ziel_unter.router,
     prefix="/mobilitaetscheck/eingabe/ziel/unter",
     tags=["Mobilitätscheck", "Eingabe"],
+)
+router.include_router(
+    gemeinde_gebiet.router,
+    prefix="/einstellungen/gebiet",
+    tags=["Einstellungen", "Gebiet"],
 )
 router.include_router(
     indikator.router,

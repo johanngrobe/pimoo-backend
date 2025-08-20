@@ -1,5 +1,6 @@
 from typing import Optional, List
 
+from fastapi_users_db_sqlalchemy.generics import GUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -25,8 +26,31 @@ class GemeindeGebiet(Base):
         comment="Gemeinde ID mit der das Gebiet verknüpft ist",
     )
     gemeinde: Mapped["Gemeinde"] = relationship(
-        back_populates="gebiete", cascade="all, delete", lazy="selectin"
+        back_populates="gebiete", lazy="selectin"
+    )
+    erstellt_von: Mapped[Optional[GUID]] = mapped_column(
+        ForeignKey(
+            "user.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+        comment="User ID des Erstellers des Indikators",
+    )
+    autor: Mapped[Optional["User"]] = relationship(
+        foreign_keys=[erstellt_von], lazy="selectin"
+    )
+    zuletzt_bearbeitet_von: Mapped[Optional[GUID]] = mapped_column(
+        ForeignKey(
+            "user.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+        comment="User ID des zuletzt bearbeitenden Benutzers",
+    )
+    letzter_bearbeiter: Mapped[Optional["User"]] = relationship(
+        foreign_keys=[zuletzt_bearbeitet_von], lazy="selectin"
     )
 
 
 from app.models.gemeinde import Gemeinde
+from app.models.user import User

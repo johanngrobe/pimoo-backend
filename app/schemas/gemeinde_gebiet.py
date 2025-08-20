@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field, ConfigDict
 class GemeindeGebietBase(BaseModel):
 
     name: str = Field(..., description="The name of the Gemeinde.")
-    gemeinde_id: int = Field(..., description="ID of the associated Gemeinde.")
 
 
 class GemeindeGebietCreate(GemeindeGebietBase):
@@ -32,6 +31,7 @@ class GemeindeGebietRead(GemeindeGebietBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="Unique identifier for the Gemeinde.")
+    gemeinde_id: int = Field(..., description="ID of the associated Gemeinde.")
     gemeinde: Optional["GemeindeRead"] = Field(
         None, description="Associated Gemeinde object."
     )

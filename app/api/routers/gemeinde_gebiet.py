@@ -47,10 +47,7 @@ async def create_gemeinde_gebiet(
     db: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    return await crud.create(
-        db=db,
-        obj_in=obj_in,
-    )
+    return await crud.create(db=db, obj_in=obj_in, user=user)
 
 
 @router.patch("/{id}", response_model=GemeindeGebietRead)
