@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from datetime import datetime, date
-from pydantic import BaseModel, Field, ConfigDict, field_serializer
+from pydantic import BaseModel, Field, ConfigDict, field_serializer, computed_field
 
 
 class MagistratsvorlageBase(BaseModel):
@@ -33,7 +33,9 @@ class MagistratsvorlageCreate(MagistratsvorlageBase):
     Inherits fields from MobilitaetscheckEingabeBase.
     """
 
-    pass
+    gemeinde_gebiet_ids: Optional[List[int]] = Field(
+        None, description="Liste der IDs der zugeordneten Gemeindegebiete."
+    )
 
 
 class MagistratsvorlageUpdate(BaseModel):
@@ -53,6 +55,9 @@ class MagistratsvorlageUpdate(BaseModel):
     )
     veroeffentlicht: Optional[bool] = Field(
         None, description="Updated publication status of the submission."
+    )
+    gemeinde_gebiet_ids: Optional[List[int]] = Field(
+        None, description="Liste der IDs der zugeordneten Gemeindegebiete."
     )
 
 
@@ -79,7 +84,20 @@ class MagistratsvorlageRead(MagistratsvorlageBaseRead):
         ...,
         description="List of climate checks associated with the submission.",
     )
+    gemeinde_gebiete: Optional[List["GemeindeGebietRead"]] = Field(
+        default_factory=list,
+        description="List of associated municipal areas.",
+    )
+
+    @computed_field
+    @property
+    def gemeinde_gebiet_ids(self) -> List[int]:
+        """
+        Automatically computes the list of tag IDs from the tags.
+        """
+        return [gebiet.id for gebiet in self.gemeinde_gebiete or []]
 
 
+from app.schemas.gemeinde_gebiet import GemeindeGebietRead
 from app.schemas.mobilitaetscheck_eingabe import MobilitaetscheckEingabeBaseRead
 from app.schemas.klimacheck_eingabe import KlimacheckEingabeRead

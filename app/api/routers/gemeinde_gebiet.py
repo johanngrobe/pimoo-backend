@@ -59,7 +59,7 @@ async def update_gemeinde_gebiet(
 ):
     instance = await crud.get(db, id)
     check_user_authorization(user, instance.gemeinde_id)
-    return await crud.update_with_associations(
+    return await crud.update(
         db=db,
         id=id,
         obj_in=updates,

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.magistratsvorlage import crud_magistratsvorlage as crud
 from app.core.deps import current_active_user, get_async_session
+from app.models.gemeinde_gebiet import GemeindeGebiet
 from app.models.user import User
 from app.schemas.magistratsvorlage import (
     MagistratsvorlageCreate as CreateSchema,
@@ -14,6 +15,8 @@ from app.schemas.magistratsvorlage import (
 from app.utils.auth_util import check_user_authorization
 
 router = APIRouter()
+
+association_fields = {"gemeinde_gebiet_ids": (GemeindeGebiet, "gemeinde_gebiete")}
 
 
 @router.get("", response_model=List[ReadSchema])
@@ -50,7 +53,9 @@ async def create_magistratsvorlage(
     user: User = Depends(current_active_user),
 ):
 
-    return await crud.create(db, obj_in, user)
+    return await crud.create_with_associations(
+        db=db, obj_in=obj_in, association_fields=association_fields, user=user
+    )
 
 
 @router.patch("/{id}", response_model=ReadSchema)
@@ -62,7 +67,9 @@ async def update_magistratsvorlage(
 ):
     instance = await crud.get(db, id)
     check_user_authorization(user, instance.gemeinde_id)
-    return await crud.update(db, id, updates, user)
+    return await crud.update_with_associations(
+        db=db, id=id, obj_in=updates, association_fields=association_fields, user=user
+    )
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
